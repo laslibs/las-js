@@ -1,6 +1,6 @@
 {
   "name": "las-js",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A zero-dependency JS library for reading/parsing .Las files",
   "main": "index.js",
   "scripts": {
@@ -9,11 +9,13 @@
   "keywords": [
     "Las",
     "Geophysics",
-    "Well",
-    "Logs"
+    "Well-logs"
   ],
   "author": "Ikechukwu Eze <iykekings36@gmail.com> (https://github.com/iykekings)",
   "license": "MIT",
-  "repository": {"type": "git", "url": "https://github.com/iykekings/las-js"},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/iykekings/las-js"
+  },
   "homepage": "https://github.com/iykekings/las-js"
 }
