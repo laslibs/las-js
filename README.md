@@ -6,14 +6,14 @@
 
 - Installing
 
-  ```bash
+  ```ps
   $npm install las-js
   ```
 
 - Usage
 
   ```js
-  const ReadLas = require('readlasjs');
+  const ReadLas = require('las-js');
   ```
 
 - Initialize
