@@ -2,7 +2,7 @@
 
 ### Currently supports only version 2.0 of LAS Specification. For more information about this format, see the Canadian Well Logging Society [web page](http://www.cwls.org/las/)
 
-##How to use
+## How to use
 
 - Installing
 
