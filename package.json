@@ -14,6 +14,6 @@
   ],
   "author": "Ikechukwu Eze <iykekings36@gmail.com> (https://github.com/iykekings)",
   "license": "MIT",
-  "repository": "github:iykekings/las-js",
+  "repository": {"type": "git", "url": "https://github.com/iykekings/las-js"},
   "homepage": "https://github.com/iykekings/las-js"
 }

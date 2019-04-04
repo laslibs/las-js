@@ -27,7 +27,7 @@ module.exports = class ReadLas {
   }
 
   data(s) {
-    const hds = ReadLas.header(s);
+    const hds = this.header(s);
     const totalHeadersLength = hds.length;
     const sB = s
       .split(/~A(?:\w*\s*)*\n/)[1]

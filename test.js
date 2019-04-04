@@ -4,8 +4,8 @@ async function read() {
   try {
     const myLas = new ReadLas('./sample/example1.las');
     const blob = await myLas.initialize();
-    const header = myLas.other(blob);
-    console.log(header);
+    const well = myLas.property(blob, 'well');
+    console.log(well);
   } catch (error) {
     console.log(error);
   }
