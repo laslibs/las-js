@@ -1,0 +1,19 @@
+{
+  "name": "las-js",
+  "version": "1.0.0",
+  "description": "A zero-dependency JS library for reading/parsing .Las files",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Las",
+    "Geophysics",
+    "Well",
+    "Logs"
+  ],
+  "author": "Ikechukwu Eze <iykekings36@gmail.com> (https://github.com/iykekings)",
+  "license": "MIT",
+  "repository": "github:iykekings/las-js",
+  "homepage": "https://github.com/iykekings/las-js"
+}
