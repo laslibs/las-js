@@ -1,6 +1,6 @@
 {
   "name": "las-js",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "description": "A zero-dependency JS library for reading/parsing .Las files",
   "main": "index.js",
   "scripts": {

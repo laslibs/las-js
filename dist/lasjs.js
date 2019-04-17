@@ -1,7 +1,12 @@
-const fs = require('fs');
-const util = require('util');
-const fsprom = util.promisify(fs.readFile);
+/**
+ * @author Ikechukwu Eze <github.com/iykekings>
+ * @version 2.0.0
+ * @license MIT
+ * @name Lasjs
+ * @summary A performant zero-dependency JavaScript library for reading .las files
+ */
 
+// Create chunk in Array prototype
 Array.prototype.chunk = function(size) {
   let overall = [];
   let index = 0;
@@ -11,8 +16,18 @@ Array.prototype.chunk = function(size) {
   }
   return overall;
 };
+//End of prototype method
 
-module.exports = class Lasjs {
+class Lasjs {
+  /**
+   * @param {(File|URL)} path - An instance of File or a URL to a .Las file
+   * @example
+   * let myLas = new ReadLas('./path-to-my-las-file.las')
+   * Or
+   * const file = document.getElementById('file-input')files[0]
+   * let myLas = new ReadLas(file)
+   */
+
   constructor(path) {
     this.path = path;
     this.blob = this.initialize();
@@ -31,11 +46,25 @@ module.exports = class Lasjs {
   }
 
   async initialize() {
-    try {
-      const str = await fsprom(this.path, 'utf8');
-      return str;
-    } catch (error) {
-      throw error;
+    if (this.path instanceof File) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsText(this.path);
+        reader.onload = event => {
+          resolve(event.target.result);
+        };
+        reader.onerror = event => {
+          reject(event.target.error);
+        };
+      });
+    } else {
+      try {
+        const val = await fetch(this.path);
+        const text = await val.text();
+        return text;
+      } catch (error) {
+        console.log(error);
+      }
     }
   }
 
@@ -77,7 +106,7 @@ module.exports = class Lasjs {
   async getDataStripped() {
     try {
       const s = await this.blob;
-      const hds = await this.header;
+      const hds = await this.getHeader();
       const well = await this.property('well');
       const nullValue = well.NULL.value;
       const totalgetHeadersLength = hds.length;
@@ -265,14 +294,8 @@ module.exports = class Lasjs {
       const data = await this.getData();
       const rHd = headers.join(',') + '\n';
       const rData = data.map(d => d.join(',')).join('\n');
-      fs.writeFile(`${filename}.csv`, rHd + rData, 'utf8', err => {
-        if (err) {
-          throw err;
-        }
-        console.log(
-          `${filename}.csv has been saved to current working directory`
-        );
-      });
+      const file = new File([rHd + rData], `${filename}.csv`);
+      return file;
     } catch (error) {
       console.log("Couldn't create csv file", error);
     }
@@ -284,16 +307,10 @@ module.exports = class Lasjs {
       const data = await this.getDataStripped();
       const rHd = headers.join(',') + '\n';
       const rData = data.map(d => d.join(',')).join('\n');
-      fs.writeFile(`${filename}.csv`, rHd + rData, 'utf8', err => {
-        if (err) {
-          throw err;
-        }
-        console.log(
-          `${filename}.csv has been saved to current working directory`
-        );
-      });
+      const file = new File([rHd + rData], `${filename}.csv`);
+      return file;
     } catch (error) {
       console.log("Couldn't create csv file", error);
     }
   }
-};
+}
