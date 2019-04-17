@@ -108,7 +108,7 @@
 
     ```Js
         // ...
-        const gammaRay = myLas.column('GR')
+        const gammaRay = await myLas.column('GR')
         console.log(gammaRay)
         // [-999.25, -999.25, -999.25, -999.25, -999.25, 122.03, 123.14, ...]
         // ...
