@@ -251,5 +251,4 @@
   | 80.5 | 2.762 | 16.2 | -5.06 |
 
 - ## Support
-  las-js is an MIT-licensed open source project. You can help it grow by becoming a sponsor/supporter.
-  <a href="https://www.patreon.com/bePatron?u=19152008" data-patreon-widget-type="become-patron-button">Become a Patron!</a><script async src="https://c6.patreon.com/becomePatronButton.bundle.js"></script>
+  las-js is an MIT-licensed open source project. You can help it grow by becoming a sponsor/supporter.[Become a Patron!](https://www.patreon.com/bePatron?u=19152008)
