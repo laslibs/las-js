@@ -30,7 +30,7 @@ export default class Lasjs {
     return Boolean(+s) ? +s : s;
   }
   public path: string | Blob;
-  public blob: Promise<string>;
+  public blob: Promise<string | undefined>;
   public data: Promise<any>;
   public dataStripped: Promise<any>;
   public header: Promise<any>;
@@ -138,7 +138,7 @@ export default class Lasjs {
     }
   }
 
-  private async initialize() {
+  private async initialize(): Promise<string | undefined> {
     if (isNode) {
       try {
         const str = await fsprom(this.path as string, 'utf8');
@@ -191,7 +191,7 @@ export default class Lasjs {
       const s = await this.blob;
       const hds = await this.getHeader();
       const totalgetHeadersLength = hds!.length;
-      const sB = s
+      const sB = s!
         .split(/~A(?:\w*\s*)*\n/)[1]
         .trim()
         .split(/\s+/)
@@ -210,7 +210,7 @@ export default class Lasjs {
       const well: any = await this.property('well');
       const nullValue = well.NULL.value;
       const totalgetHeadersLength = hds.length;
-      const sB = s
+      const sB = s!
         .split(/~A(?:\w*\s*)*\n/)[1]
         .trim()
         .split(/\s+/)
@@ -244,7 +244,7 @@ export default class Lasjs {
   private async metadata() {
     try {
       const str = await this.blob;
-      const sB = str
+      const sB = str!
         .trim()
         .split(/~V(?:\w*\s*)*\n\s*/)[1]
         .split(/~/)[0];
@@ -270,7 +270,7 @@ export default class Lasjs {
       };
       const regExp = new RegExp(regDict[p], 'i');
       const str = await this.blob;
-      const substr = str.split(regExp);
+      const substr = str!.split(regExp);
       let sw = '';
       if (substr.length > 1) {
         const res = substr[1].split(/~/)[0];
@@ -307,7 +307,7 @@ export default class Lasjs {
   private async getOther() {
     try {
       const s = await this.blob;
-      const som = s.split(/~O(?:\w*\s*)*\n\s*/i)[1];
+      const som = s!.split(/~O(?:\w*\s*)*\n\s*/i)[1];
       let str = '';
       if (som) {
         const some = som
@@ -325,7 +325,7 @@ export default class Lasjs {
   private async getHeader() {
     try {
       const s = await this.blob;
-      const sth = s.split(/~C(?:\w*\s*)*\n\s*/)[1].split('~')[0];
+      const sth = s!.split(/~C(?:\w*\s*)*\n\s*/)[1].split('~')[0];
       const uncommentedSth = Lasjs.removeComment(sth).trim();
       return uncommentedSth.split('\n').map(m => m.trim().split(/\s+|[.]/)[0]);
     } catch (error) {
@@ -339,7 +339,7 @@ export default class Lasjs {
       const hd = Object.keys(!cur);
       const descr = Object.values(!cur).map(c => c.description);
       const obj: { [key: string]: string } = {};
-      hd.map((m, i) => (obj[hd[i]] = descr[i]));
+      hd.map((_, i) => (obj[hd[i]] = descr[i]));
       return obj;
     } catch (error) {
       console.log(error);
