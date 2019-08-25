@@ -1,32 +1,11 @@
 import fs from 'fs';
 import util from 'util';
+import isNode from './isnode';
 const fsprom = util.promisify(fs.readFile);
 
 interface IWellProp {
   [key: string]: { [key: string]: string };
 }
-// interface Well {
-//   STRT?: string;
-//   STOP?: string;
-//   STEP?: string;
-//   NULL?: string;
-//   FLD?: string;
-//   LOC?: string;
-//   PROV?: string;
-//   SRVC?: string;
-//   DATE?: string;
-//   UWI?: string;
-// }
-
-// Array.prototype.chunk = function(size: number) {
-//   const overall = [];
-//   let index = 0;
-//   while (index < this.length) {
-//     overall.push(this.slice(index, index + size));
-//     index += size;
-//   }
-//   return overall;
-// };
 
 export default class Lasjs {
   private static chunk = (arr: any[], size: number) => {
@@ -50,7 +29,7 @@ export default class Lasjs {
   private static convertToValue(s: string) {
     return Boolean(+s) ? +s : s;
   }
-  public path: string;
+  public path: string | Blob;
   public blob: Promise<string>;
   public data: Promise<any>;
   public dataStripped: Promise<any>;
@@ -150,11 +129,32 @@ export default class Lasjs {
   }
 
   private async initialize() {
-    try {
-      const str = await fsprom(this.path, 'utf8');
-      return str;
-    } catch (error) {
-      throw error;
+    if (isNode) {
+      try {
+        const str = await fsprom(this.path as string, 'utf8');
+        return str;
+      } catch (error) {
+        throw error;
+      }
+    } else {
+      if (this.path instanceof File) {
+        const reader = new FileReader();
+        reader.readAsText(this.path as Blob);
+        reader.onload = () => {
+          return reader.result;
+        };
+        reader.onerror = () => {
+          return reader.error;
+        };
+      } else {
+        try {
+          const val = await fetch(this.path as string);
+          const text = await val.text();
+          return text;
+        } catch (error) {
+          console.log(error);
+        }
+      }
     }
   }
 
