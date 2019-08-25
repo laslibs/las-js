@@ -90,39 +90,49 @@ export default class Lasjs {
     }
   }
 
-  public async toCsv(filename: string) {
+  public async toCsv(filename: string): Promise<File | undefined> {
     try {
       const headers = await this.getHeader();
       const data = await this.getData();
       const rHd = headers!.join(',') + '\n';
       const rData = data!.map(d => d.join(',')).join('\n');
-      fs.writeFile(`${filename}.csv`, rHd + rData, 'utf8', err => {
-        if (err) {
-          throw err;
-        }
-        console.log(
-          `${filename}.csv has been saved to current working directory`
-        );
-      });
+      if (isNode) {
+        fs.writeFile(`${filename}.csv`, rHd + rData, 'utf8', err => {
+          if (err) {
+            throw err;
+          }
+          console.log(
+            `${filename}.csv has been saved to current working directory`
+          );
+        });
+      } else {
+        const file = new File([rHd + rData], `${filename}.csv`);
+        return file;
+      }
     } catch (error) {
       console.log("Couldn't create csv file", error);
     }
   }
 
-  public async toCsvStripped(filename: string) {
+  public async toCsvStripped(filename: string): Promise<File | undefined> {
     try {
       const headers = await this.getHeader();
       const data = await this.getDataStripped();
       const rHd = headers!.join(',') + '\n';
       const rData = data!.map(d => d.join(',')).join('\n');
-      fs.writeFile(`${filename}.csv`, rHd + rData, 'utf8', err => {
-        if (err) {
-          throw err;
-        }
-        console.log(
-          `${filename}.csv has been saved to current working directory`
-        );
-      });
+      if (isNode) {
+        fs.writeFile(`${filename}.csv`, rHd + rData, 'utf8', err => {
+          if (err) {
+            throw err;
+          }
+          console.log(
+            `${filename}.csv has been saved to current working directory`
+          );
+        });
+      } else {
+        const file = new File([rHd + rData], `${filename}.csv`);
+        return file;
+      }
     } catch (error) {
       console.log("Couldn't create csv file", error);
     }
