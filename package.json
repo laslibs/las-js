@@ -1,11 +1,12 @@
 {
   "name": "las-js",
-  "version": "2.0.0",
+  "version": "3.0.1",
   "description": "A zero-dependency JS library for reading/parsing .Las files",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "test": "jest",
+    "build": "./node_modules/.bin/tsc",
     "test:watch": "jest --watch",
     "lint": "./node_modules/.bin/tslint src/index.ts --fix"
   },

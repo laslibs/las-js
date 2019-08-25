@@ -3,3 +3,4 @@ src
 jest.config.js
 tsconfig.json
 tslint.json
+.vscode
