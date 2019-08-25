@@ -4,7 +4,9 @@
   "description": "A zero-dependency JS library for reading/parsing .Las files",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "./node_modules/.bin/tslint src/index.ts --fix"
   },
   "keywords": [
     "Las",
@@ -24,6 +26,21 @@
     "jest": "^24.9.0",
     "lint-staged": "^9.2.3",
     "ts-jest": "^24.0.2",
+    "ts-node": "^8.3.0",
+    "tslint": "^5.19.0",
+    "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.5.3"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "pre-push": "npm test"
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "npm run lint",
+      "git add"
+    ]
   }
 }
