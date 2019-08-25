@@ -31,9 +31,9 @@ export default class Lasjs {
   }
   public path: string | Blob;
   public blob: Promise<string | undefined>;
-  public data: Promise<any>;
-  public dataStripped: Promise<any>;
-  public header: Promise<any>;
+  public data: Promise<any[][] | undefined>;
+  public dataStripped: Promise<any[][] | undefined>;
+  public header: Promise<string[] | undefined>;
   public headerAndDescr: Promise<{ [key: string]: string } | undefined>;
   public version: Promise<number | undefined>;
   public wrap: Promise<any>;
@@ -209,7 +209,7 @@ export default class Lasjs {
       const hds = await this.header;
       const well: any = await this.property('well');
       const nullValue = well.NULL.value;
-      const totalgetHeadersLength = hds.length;
+      const totalgetHeadersLength = hds!.length;
       const sB = s!
         .split(/~A(?:\w*\s*)*\n/)[1]
         .trim()
@@ -335,9 +335,9 @@ export default class Lasjs {
 
   private async getHeaderAndDescr() {
     try {
-      const cur = await this.property('curve');
-      const hd = Object.keys(!cur);
-      const descr = Object.values(!cur).map(c => c.description);
+      const cur = (await this.property('curve')) as object;
+      const hd = Object.keys(cur);
+      const descr = Object.values(cur).map(c => c.description);
       const obj: { [key: string]: string } = {};
       hd.map((_, i) => (obj[hd[i]] = descr[i]));
       return obj;
