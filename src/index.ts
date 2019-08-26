@@ -1,6 +1,13 @@
 import fs from 'fs';
 import util from 'util';
 import isNode from './isnode';
+import {
+  LasError,
+  PathError,
+  PropertyError,
+  ColumnError,
+  CsvError
+} from './error';
 let fsprom: any;
 
 if (isNode) {
@@ -148,7 +155,7 @@ export default class Lasjs {
         const str = await fsprom(this.path as string, 'utf8');
         return str;
       } catch (error) {
-        throw error;
+        throw new PathError();
       }
     } else {
       if (this.path instanceof File) {
@@ -158,7 +165,7 @@ export default class Lasjs {
           return reader.result;
         };
         reader.onerror = () => {
-          return reader.error;
+          throw new PathError();
         };
       } else {
         try {
@@ -166,7 +173,7 @@ export default class Lasjs {
           const text = await val.text();
           return text;
         } catch (error) {
-          console.log(error);
+          throw new PathError();
         }
       }
     }
