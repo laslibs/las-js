@@ -15,7 +15,7 @@ if (isNode) {
 }
 
 interface IWellProp {
-  [key: string]: { [key: string]: string };
+  [key: string]: { unit: string; value: string; description: string };
 }
 
 export default class Lasjs {
@@ -49,7 +49,13 @@ export default class Lasjs {
     this.blob = this.initialize();
   }
 
-  public async column(str: string) {
+  /**
+   * Returns a column in a las file
+   * @param {string} column - name of column
+   * @returns {(Promise<Array<string| number>>)}
+   * @memberof Lasjs
+   */
+  public async column(str: string): Promise<Array<string | number>> {
     try {
       const hds = await this.header();
       const sB = await this.data();
@@ -63,27 +69,39 @@ export default class Lasjs {
     }
   }
 
-  public async columnStripped(str: string) {
+  /**
+   * Returns a column in a las file stripped off null values
+   * @param {string} column - name of column
+   * @returns {(Promise<Array<string| number>>)}
+   * @memberof Lasjs
+   */
+  public async columnStripped(column: string): Promise<Array<string | number>> {
     try {
       const hds = await this.header();
       const sB = await this.dataStripped();
-      const index = hds!.findIndex(item => item === str);
+      const index = hds!.findIndex(item => item === column);
       if (index >= 0) {
         return sB!.map(c => c[index]);
       } else {
-        throw new ColumnError(str);
+        throw new ColumnError(column);
       }
     } catch (error) {
       throw new LasError('Error getting column: ' + error);
     }
   }
 
-  public async toCsv(filename: string = 'file'): Promise<File | undefined> {
+  /**
+   * Returns a csv File object in browser and writes csv file to current working driectory in Node
+   * @param {string} filename
+   * @returns {(Promise<File | void>)}
+   * @memberof Lasjs
+   */
+  public async toCsv(filename: string = 'file'): Promise<File | void> {
     try {
       const headers = await this.header();
       const data = await this.data();
-      const rHd = headers!.join(',') + '\n';
-      const rData = data!.map(d => d.join(',')).join('\n');
+      const rHd = headers.join(',') + '\n';
+      const rData = data.map(d => d.join(',')).join('\n');
       if (isNode) {
         fs.writeFile(`${filename}.csv`, rHd + rData, 'utf8', err => {
           if (err) {
@@ -102,30 +120,39 @@ export default class Lasjs {
     }
   }
 
-  public async toCsvStripped(filename: string): Promise<File | undefined> {
+  /**
+   * Returns a csv File object in browser and writes csv file to current working driectory in Node of data stripped of null values
+   * @param {string} filename
+   * @returns {(Promise<File | void>)}
+   * @memberof Lasjs
+   */
+  public async toCsvStripped(filename: string = 'file'): Promise<File | void> {
     try {
       const headers = await this.header();
       const data = await this.dataStripped();
-      const rHd = headers!.join(',') + '\n';
-      const rData = data!.map(d => d.join(',')).join('\n');
-      if (isNode) {
-        fs.writeFile(`${filename}.csv`, rHd + rData, 'utf8', err => {
-          if (err) {
-            throw new CsvError();
-          }
-          console.log(
-            `${filename}.csv has been saved to current working directory`
-          );
-        });
-      } else {
+      const rHd = headers.join(',') + '\n';
+      const rData = data.map(d => d.join(',')).join('\n');
+      if (!isNode) {
         const file = new File([rHd + rData], `${filename}.csv`);
         return file;
       }
+      fs.writeFile(`${filename}.csv`, rHd + rData, 'utf8', err => {
+        if (err) {
+          throw new CsvError();
+        }
+        console.log(
+          `${filename}.csv has been saved to current working directory`
+        );
+      });
     } catch (error) {
       throw new LasError("Couldn't create csv file");
     }
   }
-
+  /**
+   * Returns the number of rows in a .las file
+   * @returns number
+   * @memberof Lasjs
+   */
   public async rowCount() {
     try {
       const l = await this.data();
@@ -135,6 +162,11 @@ export default class Lasjs {
     }
   }
 
+  /**
+   * Returns the number of columns in a .las file
+   * @returns number
+   * @memberof Lasjs
+   */
   public async columnCount() {
     try {
       const l = await this.header();
@@ -144,7 +176,12 @@ export default class Lasjs {
     }
   }
 
-  public async data() {
+  /**
+   * Returns a two-dimensional array of data in the log
+   * @returns {(Promise<Array<Array<string | number>>>)}
+   * @memberof Lasjs
+   */
+  public async data(): Promise<Array<Array<string | number>>> {
     try {
       const s = await this.blob;
       const hds = await this.header();
@@ -161,7 +198,12 @@ export default class Lasjs {
     }
   }
 
-  public async dataStripped() {
+  /**
+   * Returns a two-dimensional array of data in the log with all rows containing null values stripped off
+   * @returns {(Promise<Array<Array<string | number>>>)}
+   * @memberof Lasjs
+   */
+  public async dataStripped(): Promise<Array<Array<string | number>>> {
     try {
       const s = await this.blob;
       const hds = await this.header();
@@ -181,7 +223,12 @@ export default class Lasjs {
     }
   }
 
-  public async version() {
+  /**
+   * Returns the version number of the las file
+   * @returns {Promise<number>}
+   * @memberof Lasjs
+   */
+  public async version(): Promise<number> {
     try {
       const v = await this.metadata();
       return +v[0];
@@ -190,7 +237,12 @@ export default class Lasjs {
     }
   }
 
-  public async wrap() {
+  /**
+   * Returns true if the las file is of wrapped variant and false otherwise
+   * @returns {Promise<boolean>}
+   * @memberof Lasjs
+   */
+  public async wrap(): Promise<boolean> {
     try {
       const v = await this.metadata();
       return !!v[1];
@@ -199,7 +251,12 @@ export default class Lasjs {
     }
   }
 
-  public async other() {
+  /**
+   * Returns an extra info about the well stored in ~others section
+   * @returns {Promise<string>}
+   * @memberof Lasjs
+   */
+  public async other(): Promise<string> {
     try {
       const s = await this.blob;
       const som = s!.split(/~O(?:\w*\s*)*\n\s*/i)[1];
@@ -220,7 +277,12 @@ export default class Lasjs {
     }
   }
 
-  public async header() {
+  /**
+   * Returns an array of strings of the logs header/title
+   * @returns {Promise<string[]>}
+   * @memberof Lasjs
+   */
+  public async header(): Promise<string[]> {
     try {
       const s = await this.blob;
       const sth = s!.split(/~C(?:\w*\s*)*\n\s*/)[1].split('~')[0];
@@ -231,7 +293,14 @@ export default class Lasjs {
     }
   }
 
-  public async headerAndDescr() {
+  /**
+   * Returns an object each well header and description as a key-value pair
+   * @returns {Promise<{[key:string]: string}>}
+   * @memberof Lasjs
+   */
+  public async headerAndDescr(): Promise<{
+    [key: string]: string;
+  }> {
     try {
       const cur = (await this.property('curve')) as object;
       const hd = Object.keys(cur);
@@ -243,15 +312,34 @@ export default class Lasjs {
       throw new LasError("Couldn't get the header: " + error);
     }
   }
-  public async wellParams() {
+
+  /**
+   * Returns details of  well parameters.
+   * @returns {Promise<IWellProp>}
+   * @memberof Lasjs
+   */
+  public async wellParams(): Promise<IWellProp> {
     return this.property('well');
   }
-  public async curveParams() {
+
+  /**
+   * Returns details of  curve parameters.
+   * @returns {Promise<IWellProp>}
+   * @memberof Lasjs
+   */
+  public async curveParams(): Promise<IWellProp> {
     return this.property('curve');
   }
-  public async logParams() {
+
+  /**
+   * Returns details of  parameters of the well.
+   * @returns {Promise<IWellProp>}
+   * @memberof Lasjs
+   */
+  public async logParams(): Promise<IWellProp> {
     return this.property('param');
   }
+
   private async metadata() {
     try {
       const str = await this.blob;
@@ -272,7 +360,7 @@ export default class Lasjs {
     }
   }
 
-  private async property(p: string = 'well') {
+  private async property(p: string) {
     try {
       const regDict: { [key: string]: string } = {
         curve: '~C(?:\\w*\\s*)*\\n\\s*',
@@ -288,9 +376,7 @@ export default class Lasjs {
         sw = Lasjs.removeComment(res);
       }
       if (sw.length > 0) {
-        const s: {
-          [key: string]: { unit: string; value: string; description: string };
-        } = {};
+        const s: IWellProp = {};
         sw.split('\n').map(c => {
           const obj = c.replace(/\s*[.]\s+/, '   none   ');
           const title = obj.split(/[.]|\s+/)[0];
