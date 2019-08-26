@@ -19,7 +19,7 @@ interface IWellProp {
 }
 
 export default class Lasjs {
-  private static chunk = (arr: any[], size: number) => {
+  private static chunk<T>(arr: T[], size: number): T[][] {
     const overall = [];
     let index = 0;
     while (index < arr.length) {
@@ -27,7 +27,7 @@ export default class Lasjs {
       index += size;
     }
     return overall;
-  };
+  }
 
   private static removeComment(str: string) {
     return str
@@ -37,9 +37,10 @@ export default class Lasjs {
       .filter(f => !(f.charAt(0) === '#'))
       .join('\n');
   }
-  private static convertToValue(s: string) {
+  private static convertToValue(s: string): number | string {
     return Boolean(+s) ? +s : s;
   }
+
   public path: string | Blob;
   public blob: Promise<string | undefined>;
 
@@ -180,7 +181,7 @@ export default class Lasjs {
     }
   }
 
-  public async version(): Promise<number> {
+  public async version() {
     try {
       const v = await this.metadata();
       return +v[0];
@@ -189,7 +190,7 @@ export default class Lasjs {
     }
   }
 
-  public async wrap(): Promise<boolean> {
+  public async wrap() {
     try {
       const v = await this.metadata();
       return !!v[1];
@@ -271,7 +272,7 @@ export default class Lasjs {
     }
   }
 
-  private async property(p: string = 'well'): Promise<IWellProp> {
+  private async property(p: string = 'well') {
     try {
       const regDict: { [key: string]: string } = {
         curve: '~C(?:\\w*\\s*)*\\n\\s*',
@@ -287,7 +288,9 @@ export default class Lasjs {
         sw = Lasjs.removeComment(res);
       }
       if (sw.length > 0) {
-        const s: { [key: string]: {} } = {};
+        const s: {
+          [key: string]: { unit: string; value: string; description: string };
+        } = {};
         sw.split('\n').map(c => {
           const obj = c.replace(/\s*[.]\s+/, '   none   ');
           const title = obj.split(/[.]|\s+/)[0];
