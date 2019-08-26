@@ -78,11 +78,11 @@ export default class Lasjs {
       const sB = await this.getData();
       const index = hds!.findIndex(item => item === str);
       if (index < 0) {
-        throw new Error(`Column with title ${str} doesn't exist on the log`);
+        throw new ColumnError(str);
       }
       return sB!.map(c => c[index]);
     } catch (error) {
-      console.log('Problem with getting the column: ', error);
+      throw new LasError(error);
     }
   }
 
@@ -94,10 +94,10 @@ export default class Lasjs {
       if (index >= 0) {
         return sB!.map(c => c[index]);
       } else {
-        throw new Error(`Column with title ${str} doesn't exist on the log`);
+        throw new ColumnError(str);
       }
     } catch (error) {
-      console.log('Problem with getting the column: ', error);
+      throw new LasError(error);
     }
   }
 
