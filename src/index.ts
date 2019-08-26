@@ -41,8 +41,8 @@ export default class Lasjs {
   public curve: Promise<IWellProp | undefined>;
   public param: Promise<IWellProp | undefined>;
   public other: Promise<string | undefined>;
-  public rowCount: Promise<any>;
-  public columnCount: Promise<any>;
+  public rowCount: Promise<number | undefined>;
+  public columnCount: Promise<number | undefined>;
 
   constructor(path: string) {
     this.path = path;
