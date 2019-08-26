@@ -1,13 +1,13 @@
 import fs from 'fs';
 import util from 'util';
-import isNode from './isnode';
 import {
+  ColumnError,
+  CsvError,
   LasError,
   PathError,
-  PropertyError,
-  ColumnError,
-  CsvError
+  PropertyError
 } from './error';
+import isNode from './isnode';
 let fsprom: any;
 
 if (isNode) {
@@ -42,18 +42,18 @@ export default class Lasjs {
   }
   public path: string | Blob;
   public blob: Promise<string | undefined>;
-  public data: Promise<any[][] | undefined>;
-  public dataStripped: Promise<any[][] | undefined>;
-  public header: Promise<string[] | undefined>;
-  public headerAndDescr: Promise<{ [key: string]: string } | undefined>;
-  public version: Promise<number | undefined>;
+  public data: Promise<any[][]>;
+  public dataStripped: Promise<any[][]>;
+  public header: Promise<string[]>;
+  public headerAndDescr: Promise<{ [key: string]: string }>;
+  public version: Promise<number>;
   public wrap: Promise<any>;
-  public well: Promise<IWellProp | undefined>;
-  public curve: Promise<IWellProp | undefined>;
-  public param: Promise<IWellProp | undefined>;
-  public other: Promise<string | undefined>;
-  public rowCount: Promise<number | undefined>;
-  public columnCount: Promise<number | undefined>;
+  public well: Promise<IWellProp>;
+  public curve: Promise<IWellProp>;
+  public param: Promise<IWellProp>;
+  public other: Promise<string>;
+  public rowCount: Promise<number>;
+  public columnCount: Promise<number>;
 
   constructor(path: string) {
     this.path = path;
@@ -72,7 +72,7 @@ export default class Lasjs {
     this.columnCount = this.getColumnCount();
   }
 
-  public async column(str: string): Promise<number[] | undefined> {
+  public async column(str: string): Promise<any[]> {
     try {
       const hds = await this.getHeader();
       const sB = await this.getData();
@@ -82,11 +82,11 @@ export default class Lasjs {
       }
       return sB!.map(c => c[index]);
     } catch (error) {
-      throw new LasError(error);
+      throw new LasError('Error getting column: ' + error);
     }
   }
 
-  public async columnStripped(str: string): Promise<number[] | undefined> {
+  public async columnStripped(str: string): Promise<number[]> {
     try {
       const hds = await this.getHeader();
       const sB = await this.getDataStripped();
@@ -97,7 +97,7 @@ export default class Lasjs {
         throw new ColumnError(str);
       }
     } catch (error) {
-      throw new LasError(error);
+      throw new LasError('Error getting column: ' + error);
     }
   }
 
@@ -182,18 +182,18 @@ export default class Lasjs {
   private async getRowCount() {
     try {
       const l = await this.getData();
-      return l!.length;
+      return l.length;
     } catch (error) {
-      console.log(error);
+      throw new LasError("Couldn't get row count: " + error);
     }
   }
 
   private async getColumnCount() {
     try {
       const l = await this.getHeader();
-      return l!.length;
+      return l.length;
     } catch (error) {
-      console.log(error);
+      throw new LasError("Couldn't get column count: " + error);
     }
   }
 
@@ -201,7 +201,7 @@ export default class Lasjs {
     try {
       const s = await this.blob;
       const hds = await this.getHeader();
-      const totalgetHeadersLength = hds!.length;
+      const totalgetHeadersLength = hds.length;
       const sB = s!
         .split(/~A(?:\w*\s*)*\n/)[1]
         .trim()
@@ -210,17 +210,17 @@ export default class Lasjs {
       const con = Lasjs.chunk(sB, totalgetHeadersLength);
       return con;
     } catch (error) {
-      console.log(error);
+      throw new LasError("Couldn't get read data: " + error);
     }
   }
 
   private async getDataStripped() {
     try {
       const s = await this.blob;
-      const hds = await this.header;
+      const hds = await this.getHeader();
       const well: any = await this.property('well');
       const nullValue = well.NULL.value;
-      const totalgetHeadersLength = hds!.length;
+      const totalgetHeadersLength = hds.length;
       const sB = s!
         .split(/~A(?:\w*\s*)*\n/)[1]
         .trim()
@@ -230,25 +230,25 @@ export default class Lasjs {
       const filtered = con.filter(f => !f.some(x => x === +nullValue));
       return filtered;
     } catch (error) {
-      console.log(error);
+      throw new LasError("Couldn't get read data: " + error);
     }
   }
 
-  private async getVersion(): Promise<number | undefined> {
+  private async getVersion(): Promise<number> {
     try {
       const v = await this.metadata();
-      return +v![0];
+      return +v[0];
     } catch (error) {
-      console.log(error);
+      throw new LasError("Couldn't get version: " + error);
     }
   }
 
   private async getWrap() {
     try {
       const v = await this.metadata();
-      return v![1];
+      return v[1];
     } catch (error) {
-      console.log(error);
+      throw new LasError("Couldn't get wrap: " + error);
     }
   }
 
@@ -268,11 +268,11 @@ export default class Lasjs {
       const wrap = res[1].toLowerCase() === 'yes' ? true : false;
       return [res[0], wrap];
     } catch (error) {
-      console.log(error);
+      throw new LasError("Couldn't get metadata: " + error);
     }
   }
 
-  private async property(p: string): Promise<IWellProp | undefined> {
+  private async property(p: string): Promise<IWellProp> {
     try {
       const regDict: { [key: string]: string } = {
         curve: '~C(?:\\w*\\s*)*\\n\\s*',
@@ -308,10 +308,10 @@ export default class Lasjs {
         });
         return s;
       } else {
-        return undefined;
+        throw new PropertyError(p);
       }
     } catch (error) {
-      console.log(error);
+      throw new LasError("Couldn't get the property: " + error);
     }
   }
 
@@ -327,9 +327,12 @@ export default class Lasjs {
           .trim();
         str = Lasjs.removeComment(some);
       }
-      return str.length > 0 ? str : 'none';
+      if (str.length <= 0) {
+        return str;
+      }
+      throw new LasError('No other metadata');
     } catch (error) {
-      console.log(error);
+      throw new LasError("Couldn't get other metadata: " + error);
     }
   }
 
@@ -340,7 +343,7 @@ export default class Lasjs {
       const uncommentedSth = Lasjs.removeComment(sth).trim();
       return uncommentedSth.split('\n').map(m => m.trim().split(/\s+|[.]/)[0]);
     } catch (error) {
-      console.log(error);
+      throw new LasError("Couldn't get the header: " + error);
     }
   }
 
@@ -353,7 +356,7 @@ export default class Lasjs {
       hd.map((_, i) => (obj[hd[i]] = descr[i]));
       return obj;
     } catch (error) {
-      console.log(error);
+      throw new LasError("Couldn't get the header: " + error);
     }
   }
 }
