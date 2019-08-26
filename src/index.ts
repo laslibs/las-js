@@ -1,7 +1,11 @@
 import fs from 'fs';
 import util from 'util';
 import isNode from './isnode';
-const fsprom = util.promisify(fs.readFile);
+let fsprom: any;
+
+if (isNode) {
+  fsprom = util.promisify(fs.readFile);
+}
 
 interface IWellProp {
   [key: string]: { [key: string]: string };
