@@ -42,40 +42,16 @@ export default class Lasjs {
   }
   public path: string | Blob;
   public blob: Promise<string | undefined>;
-  public data: Promise<any[][]>;
-  public dataStripped: Promise<any[][]>;
-  public header: Promise<string[]>;
-  public headerAndDescr: Promise<{ [key: string]: string }>;
-  public version: Promise<number>;
-  public wrap: Promise<any>;
-  public well: Promise<IWellProp>;
-  public curve: Promise<IWellProp>;
-  public param: Promise<IWellProp>;
-  public other: Promise<string>;
-  public rowCount: Promise<number>;
-  public columnCount: Promise<number>;
 
   constructor(path: string) {
     this.path = path;
     this.blob = this.initialize();
-    this.data = this.getData();
-    this.dataStripped = this.getDataStripped();
-    this.header = this.getHeader();
-    this.headerAndDescr = this.getHeaderAndDescr();
-    this.version = this.getVersion();
-    this.wrap = this.getWrap();
-    this.well = this.property('well');
-    this.curve = this.property('curve');
-    this.param = this.property('param');
-    this.other = this.getOther();
-    this.rowCount = this.getRowCount();
-    this.columnCount = this.getColumnCount();
   }
 
-  public async column(str: string): Promise<any[]> {
+  public async column(str: string) {
     try {
-      const hds = await this.getHeader();
-      const sB = await this.getData();
+      const hds = await this.header();
+      const sB = await this.data();
       const index = hds!.findIndex(item => item === str);
       if (index < 0) {
         throw new ColumnError(str);
@@ -86,10 +62,10 @@ export default class Lasjs {
     }
   }
 
-  public async columnStripped(str: string): Promise<number[]> {
+  public async columnStripped(str: string) {
     try {
-      const hds = await this.getHeader();
-      const sB = await this.getDataStripped();
+      const hds = await this.header();
+      const sB = await this.dataStripped();
       const index = hds!.findIndex(item => item === str);
       if (index >= 0) {
         return sB!.map(c => c[index]);
@@ -103,8 +79,8 @@ export default class Lasjs {
 
   public async toCsv(filename: string = 'file'): Promise<File | undefined> {
     try {
-      const headers = await this.getHeader();
-      const data = await this.getData();
+      const headers = await this.header();
+      const data = await this.data();
       const rHd = headers!.join(',') + '\n';
       const rData = data!.map(d => d.join(',')).join('\n');
       if (isNode) {
@@ -127,8 +103,8 @@ export default class Lasjs {
 
   public async toCsvStripped(filename: string): Promise<File | undefined> {
     try {
-      const headers = await this.getHeader();
-      const data = await this.getDataStripped();
+      const headers = await this.header();
+      const data = await this.dataStripped();
       const rHd = headers!.join(',') + '\n';
       const rData = data!.map(d => d.join(',')).join('\n');
       if (isNode) {
@@ -149,84 +125,54 @@ export default class Lasjs {
     }
   }
 
-  private async initialize(): Promise<string | undefined> {
-    if (isNode) {
-      try {
-        const str = await fsprom(this.path as string, 'utf8');
-        return str;
-      } catch (error) {
-        throw new PathError();
-      }
-    } else {
-      if (this.path instanceof File) {
-        const reader = new FileReader();
-        reader.readAsText(this.path as Blob);
-        reader.onload = () => {
-          return reader.result;
-        };
-        reader.onerror = () => {
-          throw new PathError();
-        };
-      } else {
-        try {
-          const val = await fetch(this.path as string);
-          const text = await val.text();
-          return text;
-        } catch (error) {
-          throw new PathError();
-        }
-      }
-    }
-  }
-
-  private async getRowCount() {
+  public async getRowCount() {
     try {
-      const l = await this.getData();
+      const l = await this.data();
       return l.length;
     } catch (error) {
       throw new LasError("Couldn't get row count: " + error);
     }
   }
 
-  private async getColumnCount() {
+  public async columnCount() {
     try {
-      const l = await this.getHeader();
+      const l = await this.header();
       return l.length;
     } catch (error) {
       throw new LasError("Couldn't get column count: " + error);
     }
   }
 
-  private async getData() {
+  public async data() {
     try {
       const s = await this.blob;
-      const hds = await this.getHeader();
-      const totalgetHeadersLength = hds.length;
+      const hds = await this.header();
+      const totalheadersLength = hds.length;
       const sB = s!
         .split(/~A(?:\w*\s*)*\n/)[1]
         .trim()
         .split(/\s+/)
         .map(m => Lasjs.convertToValue(m.trim()));
-      const con = Lasjs.chunk(sB, totalgetHeadersLength);
+      const con = Lasjs.chunk(sB, totalheadersLength);
       return con;
     } catch (error) {
       throw new LasError("Couldn't get read data: " + error);
     }
   }
 
-  private async getDataStripped() {
+  public async dataStripped() {
     try {
       const s = await this.blob;
-      const hds = await this.getHeader();
+      const hds = await this.header();
       const well: any = await this.property('well');
       const nullValue = well.NULL.value;
-      const totalgetHeadersLength = hds.length;
+      const totalheadersLength = hds.length;
       const sB = s!
         .split(/~A(?:\w*\s*)*\n/)[1]
         .trim()
         .split(/\s+/)
         .map(m => Lasjs.convertToValue(m.trim()));
-      const con = Lasjs.chunk(sB, totalgetHeadersLength);
+      const con = Lasjs.chunk(sB, totalheadersLength);
       const filtered = con.filter(f => !f.some(x => x === +nullValue));
       return filtered;
     } catch (error) {
@@ -234,7 +180,7 @@ export default class Lasjs {
     }
   }
 
-  private async getVersion(): Promise<number> {
+  public async version(): Promise<number> {
     try {
       const v = await this.metadata();
       return +v[0];
@@ -243,15 +189,68 @@ export default class Lasjs {
     }
   }
 
-  private async getWrap() {
+  public async wrap(): Promise<boolean> {
     try {
       const v = await this.metadata();
-      return v[1];
+      return !!v[1];
     } catch (error) {
       throw new LasError("Couldn't get wrap: " + error);
     }
   }
 
+  public async other() {
+    try {
+      const s = await this.blob;
+      const som = s!.split(/~O(?:\w*\s*)*\n\s*/i)[1];
+      let str = '';
+      if (som) {
+        const some = som
+          .split('~')[0]
+          .replace(/\n\s*/g, ' ')
+          .trim();
+        str = Lasjs.removeComment(some);
+      }
+      if (str.length <= 0) {
+        throw new LasError('No other metadata');
+      }
+      return str;
+    } catch (error) {
+      throw new LasError("Couldn't get other metadata: " + error);
+    }
+  }
+
+  public async header() {
+    try {
+      const s = await this.blob;
+      const sth = s!.split(/~C(?:\w*\s*)*\n\s*/)[1].split('~')[0];
+      const uncommentedSth = Lasjs.removeComment(sth).trim();
+      return uncommentedSth.split('\n').map(m => m.trim().split(/\s+|[.]/)[0]);
+    } catch (error) {
+      throw new LasError("Couldn't get the header: " + error);
+    }
+  }
+
+  public async headerAndDescr() {
+    try {
+      const cur = (await this.property('curve')) as object;
+      const hd = Object.keys(cur);
+      const descr = Object.values(cur).map(c => c.description);
+      const obj: { [key: string]: string } = {};
+      hd.map((_, i) => (obj[hd[i]] = descr[i]));
+      return obj;
+    } catch (error) {
+      throw new LasError("Couldn't get the header: " + error);
+    }
+  }
+  public async wellParams() {
+    return this.property('well');
+  }
+  public async curveParams() {
+    return this.property('curve');
+  }
+  public async logParams() {
+    return this.property('param');
+  }
   private async metadata() {
     try {
       const str = await this.blob;
@@ -272,7 +271,7 @@ export default class Lasjs {
     }
   }
 
-  private async property(p: string): Promise<IWellProp> {
+  private async property(p: string = 'well'): Promise<IWellProp> {
     try {
       const regDict: { [key: string]: string } = {
         curve: '~C(?:\\w*\\s*)*\\n\\s*',
@@ -315,48 +314,33 @@ export default class Lasjs {
     }
   }
 
-  private async getOther() {
-    try {
-      const s = await this.blob;
-      const som = s!.split(/~O(?:\w*\s*)*\n\s*/i)[1];
-      let str = '';
-      if (som) {
-        const some = som
-          .split('~')[0]
-          .replace(/\n\s*/g, ' ')
-          .trim();
-        str = Lasjs.removeComment(some);
-      }
-      if (str.length <= 0) {
+  private async initialize(): Promise<string | undefined> {
+    if (isNode) {
+      try {
+        const str = await fsprom(this.path as string, 'utf8');
         return str;
+      } catch (error) {
+        throw new PathError();
       }
-      throw new LasError('No other metadata');
-    } catch (error) {
-      throw new LasError("Couldn't get other metadata: " + error);
-    }
-  }
-
-  private async getHeader() {
-    try {
-      const s = await this.blob;
-      const sth = s!.split(/~C(?:\w*\s*)*\n\s*/)[1].split('~')[0];
-      const uncommentedSth = Lasjs.removeComment(sth).trim();
-      return uncommentedSth.split('\n').map(m => m.trim().split(/\s+|[.]/)[0]);
-    } catch (error) {
-      throw new LasError("Couldn't get the header: " + error);
-    }
-  }
-
-  private async getHeaderAndDescr() {
-    try {
-      const cur = (await this.property('curve')) as object;
-      const hd = Object.keys(cur);
-      const descr = Object.values(cur).map(c => c.description);
-      const obj: { [key: string]: string } = {};
-      hd.map((_, i) => (obj[hd[i]] = descr[i]));
-      return obj;
-    } catch (error) {
-      throw new LasError("Couldn't get the header: " + error);
+    } else {
+      if (this.path instanceof File) {
+        const reader = new FileReader();
+        reader.readAsText(this.path as Blob);
+        reader.onload = () => {
+          return reader.result;
+        };
+        reader.onerror = () => {
+          throw new PathError();
+        };
+      } else {
+        try {
+          const val = await fetch(this.path as string);
+          const text = await val.text();
+          return text;
+        } catch (error) {
+          throw new PathError();
+        }
+      }
     }
   }
 }

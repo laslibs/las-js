@@ -57,7 +57,7 @@ describe('Header', () => {
     async filename => {
       const myLas = new Las(path.resolve(__dirname, `./sample/${filename}`));
       const header = await myLas.header;
-      expect(header!.length).toBeGreaterThan(0);
+      expect(header.length).toBeGreaterThan(0);
     },
     1000
   );
