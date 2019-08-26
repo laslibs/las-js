@@ -101,7 +101,7 @@ export default class Lasjs {
     }
   }
 
-  public async toCsv(filename: string): Promise<File | undefined> {
+  public async toCsv(filename: string = 'file'): Promise<File | undefined> {
     try {
       const headers = await this.getHeader();
       const data = await this.getData();
@@ -110,7 +110,7 @@ export default class Lasjs {
       if (isNode) {
         fs.writeFile(`${filename}.csv`, rHd + rData, 'utf8', err => {
           if (err) {
-            throw err;
+            throw new CsvError();
           }
           console.log(
             `${filename}.csv has been saved to current working directory`
@@ -121,7 +121,7 @@ export default class Lasjs {
         return file;
       }
     } catch (error) {
-      console.log("Couldn't create csv file", error);
+      throw new LasError("Couldn't create csv file");
     }
   }
 
@@ -134,7 +134,7 @@ export default class Lasjs {
       if (isNode) {
         fs.writeFile(`${filename}.csv`, rHd + rData, 'utf8', err => {
           if (err) {
-            throw err;
+            throw new CsvError();
           }
           console.log(
             `${filename}.csv has been saved to current working directory`
@@ -145,7 +145,7 @@ export default class Lasjs {
         return file;
       }
     } catch (error) {
-      console.log("Couldn't create csv file", error);
+      throw new LasError("Couldn't create csv file");
     }
   }
 
