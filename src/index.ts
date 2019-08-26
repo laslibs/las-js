@@ -125,7 +125,7 @@ export default class Lasjs {
     }
   }
 
-  public async getRowCount() {
+  public async rowCount() {
     try {
       const l = await this.data();
       return l.length;

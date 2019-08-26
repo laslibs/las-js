@@ -8,7 +8,7 @@ describe('Version', () => {
     'Returns version of las file for %s',
     async filename => {
       const myLas = new Las(path.resolve(__dirname, `./sample/${filename}`));
-      const version = await myLas.version;
+      const version = await myLas.version();
       expect(version).toBe(2);
     },
     1000
@@ -32,7 +32,7 @@ describe('Data', () => {
     'The data is an Array for %s',
     async filename => {
       const myLas = new Las(path.resolve(__dirname, `./sample/${filename}`));
-      const data = await myLas.data;
+      const data = await myLas.data();
       expect(data).toBeInstanceOf(Array);
     },
     1000
@@ -44,7 +44,7 @@ describe('Stripped Data', () => {
     'The dataStripped is an Array for %s',
     async filename => {
       const myLas = new Las(path.resolve(__dirname, `./sample/${filename}`));
-      const dataStripped = await myLas.dataStripped;
+      const dataStripped = await myLas.dataStripped();
       expect(dataStripped).toBeInstanceOf(Array);
     },
     1000
@@ -56,7 +56,7 @@ describe('Header', () => {
     'The header is an non-empty Array for %s',
     async filename => {
       const myLas = new Las(path.resolve(__dirname, `./sample/${filename}`));
-      const header = await myLas.header;
+      const header = await myLas.header();
       expect(header.length).toBeGreaterThan(0);
     },
     1000
@@ -68,7 +68,7 @@ describe('Header and Description', () => {
     'The headerAndDescr is an non-empty object for %s',
     async filename => {
       const myLas = new Las(path.resolve(__dirname, `./sample/${filename}`));
-      const headerAndDescr = await myLas.headerAndDescr;
+      const headerAndDescr = await myLas.headerAndDescr();
       expect(Object.keys(headerAndDescr as object).length).toBeGreaterThan(0);
     },
     1000
@@ -80,7 +80,7 @@ describe('Wrap variant', () => {
     'wrap state must be a boolean for %s',
     async filename => {
       const myLas = new Las(path.resolve(__dirname, `./sample/${filename}`));
-      const wrap = await myLas.wrap;
+      const wrap = await myLas.wrap();
       expect(typeof wrap).toBe('boolean');
     },
     1000
@@ -92,7 +92,7 @@ describe('Well Parameters', () => {
     'well parameters are present for %s',
     async filename => {
       const myLas = new Las(path.resolve(__dirname, `./sample/${filename}`));
-      const well = await myLas.well;
+      const well = await myLas.wellParams();
       expect(Object.keys(well as object).length).toBeGreaterThan(0);
     },
     1000
@@ -104,7 +104,7 @@ describe('Curve Parameters', () => {
     'curve parameters are present for %s',
     async filename => {
       const myLas = new Las(path.resolve(__dirname, `./sample/${filename}`));
-      const curve = await myLas.curve;
+      const curve = await myLas.curveParams();
       expect(Object.keys(curve as object).length).toBeGreaterThan(0);
     },
     1000
@@ -116,7 +116,7 @@ describe('Log Parameters', () => {
     'log parameters are present for %s',
     async filename => {
       const myLas = new Las(path.resolve(__dirname, `./sample/${filename}`));
-      const param = await myLas.param;
+      const param = await myLas.logParams();
       expect(Object.keys(param as object).length).toBeGreaterThan(0);
     },
     1000
@@ -128,7 +128,7 @@ describe('Rows', () => {
     '%s has more than zero rows',
     async filename => {
       const myLas = new Las(path.resolve(__dirname, `./sample/${filename}`));
-      const rowCount = await myLas.rowCount;
+      const rowCount = await myLas.rowCount();
       expect(rowCount).toBeGreaterThan(0);
     },
     1000
@@ -140,7 +140,7 @@ describe('Column', () => {
     '%s has more than zero columns',
     async filename => {
       const myLas = new Las(path.resolve(__dirname, `./sample/${filename}`));
-      const columnCount = await myLas.columnCount;
+      const columnCount = await myLas.columnCount();
       expect(columnCount).toBeGreaterThan(0);
     },
     1000
