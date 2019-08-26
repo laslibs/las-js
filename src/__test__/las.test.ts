@@ -31,3 +31,8 @@ test('The headerAndDescr is an non-empty object', async () => {
   const headerAndDescr = await myLas.headerAndDescr;
   expect(Object.keys(headerAndDescr as object).length).toBeGreaterThan(0);
 }, 1000);
+
+test('wrap state must be a boolean', async () => {
+  const wrap = await myLas.wrap;
+  expect(typeof wrap).toBe('boolean');
+}, 1000);
