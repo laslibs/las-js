@@ -20,8 +20,8 @@ describe('Blob', () => {
     "The decoded string shouldn't be empty for %s",
     async filename => {
       const myLas = new Las(path.resolve(__dirname, `./sample/${filename}`));
-      const blob = await myLas.blob;
-      expect(blob!.length).toBeGreaterThan(0);
+      const blob = await myLas.blobString;
+      expect((blob as string).length).toBeGreaterThan(0);
     },
     1000
   );

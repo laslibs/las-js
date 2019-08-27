@@ -1,20 +1,14 @@
 import fs from 'fs';
 import util from 'util';
-import {
-  ColumnError,
-  CsvError,
-  LasError,
-  PathError,
-  PropertyError
-} from './error';
+import { ColumnError, CsvError, LasError, PathError, PropertyError } from './error';
 import isNode from './isnode';
-let fsprom: any;
+let fsprom: Function;
 
 if (isNode) {
   fsprom = util.promisify(fs.readFile);
 }
 
-interface IWellProp {
+interface WellProps {
   [key: string]: { unit: string; value: string; description: string };
 }
 
@@ -29,7 +23,7 @@ export default class Lasjs {
     return overall;
   }
 
-  private static removeComment(str: string) {
+  private static removeComment(str: string): string {
     return str
       .trim()
       .split('\n')
@@ -42,11 +36,11 @@ export default class Lasjs {
   }
 
   public path: string | Blob;
-  public blob: Promise<string | undefined>;
+  public blobString: Promise<string | void>;
 
   constructor(path: string) {
     this.path = path;
-    this.blob = this.initialize();
+    this.blobString = this.initialize();
   }
 
   /**
@@ -59,11 +53,11 @@ export default class Lasjs {
     try {
       const hds = await this.header();
       const sB = await this.data();
-      const index = hds!.findIndex(item => item === str);
+      const index = hds.findIndex(item => item === str);
       if (index < 0) {
         throw new ColumnError(str);
       }
-      return sB!.map(c => c[index]);
+      return sB.map(c => c[index]);
     } catch (error) {
       throw new LasError('Error getting column: ' + error);
     }
@@ -79,9 +73,9 @@ export default class Lasjs {
     try {
       const hds = await this.header();
       const sB = await this.dataStripped();
-      const index = hds!.findIndex(item => item === column);
+      const index = hds.findIndex(item => item === column);
       if (index >= 0) {
-        return sB!.map(c => c[index]);
+        return sB.map(c => c[index]);
       } else {
         throw new ColumnError(column);
       }
@@ -96,7 +90,7 @@ export default class Lasjs {
    * @returns {(Promise<File | void>)}
    * @memberof Lasjs
    */
-  public async toCsv(filename: string = 'file'): Promise<File | void> {
+  public async toCsv(filename = 'file'): Promise<File | void> {
     try {
       const headers = await this.header();
       const data = await this.data();
@@ -107,9 +101,7 @@ export default class Lasjs {
           if (err) {
             throw new CsvError();
           }
-          console.log(
-            `${filename}.csv has been saved to current working directory`
-          );
+          console.log(`${filename}.csv has been saved to current working directory`);
         });
       } else {
         const file = new File([rHd + rData], `${filename}.csv`);
@@ -126,7 +118,7 @@ export default class Lasjs {
    * @returns {(Promise<File | void>)}
    * @memberof Lasjs
    */
-  public async toCsvStripped(filename: string = 'file'): Promise<File | void> {
+  public async toCsvStripped(filename = 'file'): Promise<File | void> {
     try {
       const headers = await this.header();
       const data = await this.dataStripped();
@@ -140,9 +132,7 @@ export default class Lasjs {
         if (err) {
           throw new CsvError();
         }
-        console.log(
-          `${filename}.csv has been saved to current working directory`
-        );
+        console.log(`${filename}.csv has been saved to current working directory`);
       });
     } catch (error) {
       throw new LasError("Couldn't create csv file");
@@ -153,7 +143,7 @@ export default class Lasjs {
    * @returns number
    * @memberof Lasjs
    */
-  public async rowCount() {
+  public async rowCount(): Promise<number> {
     try {
       const l = await this.data();
       return l.length;
@@ -167,7 +157,7 @@ export default class Lasjs {
    * @returns number
    * @memberof Lasjs
    */
-  public async columnCount() {
+  public async columnCount(): Promise<number> {
     try {
       const l = await this.header();
       return l.length;
@@ -183,10 +173,10 @@ export default class Lasjs {
    */
   public async data(): Promise<Array<Array<string | number>>> {
     try {
-      const s = await this.blob;
+      const s = await this.blobString;
       const hds = await this.header();
       const totalheadersLength = hds.length;
-      const sB = s!
+      const sB = (s as string)
         .split(/~A(?:\w*\s*)*\n/)[1]
         .trim()
         .split(/\s+/)
@@ -205,12 +195,12 @@ export default class Lasjs {
    */
   public async dataStripped(): Promise<Array<Array<string | number>>> {
     try {
-      const s = await this.blob;
+      const s = await this.blobString;
       const hds = await this.header();
-      const well: any = await this.property('well');
+      const well = await this.property('well');
       const nullValue = well.NULL.value;
       const totalheadersLength = hds.length;
-      const sB = s!
+      const sB = (s as string)
         .split(/~A(?:\w*\s*)*\n/)[1]
         .trim()
         .split(/\s+/)
@@ -231,7 +221,7 @@ export default class Lasjs {
   public async version(): Promise<number> {
     try {
       const v = await this.metadata();
-      return +v[0];
+      return v[0];
     } catch (error) {
       throw new LasError("Couldn't get version: " + error);
     }
@@ -245,7 +235,7 @@ export default class Lasjs {
   public async wrap(): Promise<boolean> {
     try {
       const v = await this.metadata();
-      return !!v[1];
+      return v[1];
     } catch (error) {
       throw new LasError("Couldn't get wrap: " + error);
     }
@@ -258,8 +248,8 @@ export default class Lasjs {
    */
   public async other(): Promise<string> {
     try {
-      const s = await this.blob;
-      const som = s!.split(/~O(?:\w*\s*)*\n\s*/i)[1];
+      const s = await this.blobString;
+      const som = (s as string).split(/~O(?:\w*\s*)*\n\s*/i)[1];
       let str = '';
       if (som) {
         const some = som
@@ -284,8 +274,8 @@ export default class Lasjs {
    */
   public async header(): Promise<string[]> {
     try {
-      const s = await this.blob;
-      const sth = s!.split(/~C(?:\w*\s*)*\n\s*/)[1].split('~')[0];
+      const s = await this.blobString;
+      const sth = (s as string).split(/~C(?:\w*\s*)*\n\s*/)[1].split('~')[0];
       const uncommentedSth = Lasjs.removeComment(sth).trim();
       return uncommentedSth.split('\n').map(m => m.trim().split(/\s+|[.]/)[0]);
     } catch (error) {
@@ -315,35 +305,35 @@ export default class Lasjs {
 
   /**
    * Returns details of  well parameters.
-   * @returns {Promise<IWellProp>}
+   * @returns {Promise<WellProps>}
    * @memberof Lasjs
    */
-  public async wellParams(): Promise<IWellProp> {
+  public async wellParams(): Promise<WellProps> {
     return this.property('well');
   }
 
   /**
    * Returns details of  curve parameters.
-   * @returns {Promise<IWellProp>}
+   * @returns {Promise<WellProps>}
    * @memberof Lasjs
    */
-  public async curveParams(): Promise<IWellProp> {
+  public async curveParams(): Promise<WellProps> {
     return this.property('curve');
   }
 
   /**
    * Returns details of  parameters of the well.
-   * @returns {Promise<IWellProp>}
+   * @returns {Promise<WellProps>}
    * @memberof Lasjs
    */
-  public async logParams(): Promise<IWellProp> {
+  public async logParams(): Promise<WellProps> {
     return this.property('param');
   }
 
-  private async metadata() {
+  private async metadata(): Promise<[number, boolean]> {
     try {
-      const str = await this.blob;
-      const sB = str!
+      const str = await this.blobString;
+      const sB = (str as string)
         .trim()
         .split(/~V(?:\w*\s*)*\n\s*/)[1]
         .split(/~/)[0];
@@ -354,13 +344,13 @@ export default class Lasjs {
         .filter(f => Boolean(f));
       const res = refined.map(r => r[1]);
       const wrap = res[1].toLowerCase() === 'yes' ? true : false;
-      return [res[0], wrap];
+      return [+res[0], wrap];
     } catch (error) {
       throw new LasError("Couldn't get metadata: " + error);
     }
   }
 
-  private async property(p: string) {
+  private async property(p: string): Promise<WellProps> {
     try {
       const regDict: { [key: string]: string } = {
         curve: '~C(?:\\w*\\s*)*\\n\\s*',
@@ -368,15 +358,15 @@ export default class Lasjs {
         well: '~W(?:\\w*\\s*)*\\n\\s*'
       };
       const regExp = new RegExp(regDict[p], 'i');
-      const str = await this.blob;
-      const substr = str!.split(regExp);
+      const str = await this.blobString;
+      const substr = (str as string).split(regExp);
       let sw = '';
       if (substr.length > 1) {
         const res = substr[1].split(/~/)[0];
         sw = Lasjs.removeComment(res);
       }
       if (sw.length > 0) {
-        const s: IWellProp = {};
+        const s: WellProps = {};
         sw.split('\n').map(c => {
           const obj = c.replace(/\s*[.]\s+/, '   none   ');
           const title = obj.split(/[.]|\s+/)[0];
@@ -384,14 +374,10 @@ export default class Lasjs {
             .trim()
             .split(/^\w+\s*[.]*s*/)[1]
             .split(/\s+/)[0];
-          const description = Boolean(obj.split(/[:]/)[1].trim())
-            ? obj.split(/[:]/)[1].trim()
-            : 'none';
+          const description = Boolean(obj.split(/[:]/)[1].trim()) ? obj.split(/[:]/)[1].trim() : 'none';
           const third = obj.split(/[:]/)[0].split(/\s{2,}\w*\s{2,}/);
           const value =
-            third.length > 2 && !Boolean(third[third.length - 1])
-              ? third[third.length - 2]
-              : third[third.length - 1];
+            third.length > 2 && !Boolean(third[third.length - 1]) ? third[third.length - 2] : third[third.length - 1];
           s[title] = { unit, value, description };
         });
         return s;
@@ -403,11 +389,11 @@ export default class Lasjs {
     }
   }
 
-  private async initialize(): Promise<string | undefined> {
+  private async initialize(): Promise<string | void> {
     if (isNode) {
       try {
         const str = await fsprom(this.path as string, 'utf8');
-        return str;
+        return str as string;
       } catch (error) {
         throw new PathError();
       }
@@ -415,11 +401,11 @@ export default class Lasjs {
       if (this.path instanceof File) {
         const reader = new FileReader();
         reader.readAsText(this.path as Blob);
-        reader.onload = () => {
-          return reader.result;
-        };
-        reader.onerror = () => {
+        reader.onerror = (): void => {
           throw new PathError();
+        };
+        reader.onload = (): string => {
+          return reader.result as string;
         };
       } else {
         try {
