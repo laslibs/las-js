@@ -7,9 +7,9 @@
   "scripts": {
     "test": "jest --testPathIgnorePatterns test.js",
     "test:vn": "jest",
-    "build": "./node_modules/.bin/tsc",
+    "build": "./node_modules/.bin/tsc && ./node_modules/.bin/tsc -p tsconfig.browser.json",
     "test:watch": "jest --watch",
-    "lint": "./node_modules/.bin/tslint src/index.ts --fix"
+    "lint": "./node_modules/.bin/eslint src --ext .ts --fix"
   },
   "keywords": [
     "Las",

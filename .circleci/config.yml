@@ -25,6 +25,18 @@ defaults: &defaults
         root: ~/repo
         paths: .
 jobs:
+  test-node8:
+    docker:
+      - image: circleci/node:8.9.1
+    <<: *defaults
+  test-node10:
+    docker:
+      - image: circleci/node:10.16.0
+    <<: *defaults
+  test-node-latest:
+    docker:
+      - image: circleci/node:latest
+    <<: *defaults
   test-vanilla-node:
     docker:
       - image: circleci/node:10.16.0
@@ -46,18 +58,15 @@ jobs:
           name: Run tests
           command: npm run test:vn
 
-  test-node8:
-    docker:
-      - image: circleci/node:8.9.1
-    <<: *defaults
-  test-node10:
-    docker:
-      - image: circleci/node:10.16.0
-    <<: *defaults
-  test-node-latest:
-    docker:
-      - image: circleci/node:latest
-    <<: *defaults
+      - save_cache:
+        paths:
+          - node_modules
+        key: v1-dependencies-{{ checksum "package.json" }}
+
+      - persist_to_workspace:
+          root: ~/repo
+          paths: .
+
   deploy:
     working_directory: ~/repo
     docker:
@@ -93,18 +102,13 @@ workflows:
           filters:
             tags:
               only: /^v.*/
-      - test-vanilla-js:
-          # filters:
-          #   branches:
-          #     only: master
-          #   tags:
-          #     only: /^v.*/
+      - test-vanilla-node
       - deploy:
           requires:
             - test-node8
             - test-node10
             - test-node-latest
-            - test-vanilla-js
+            - test-vanilla-node
           filters:
             branches:
               only: master

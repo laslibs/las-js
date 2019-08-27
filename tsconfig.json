@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "es2015",
     "module": "commonjs",
+    "moduleResolution": "node",
     "lib": ["es2017", "es7", "es6", "dom"],
     "declaration": true,
     "outDir": "dist",
@@ -9,5 +10,5 @@
     "esModuleInterop": true,
     "sourceMap": true
   },
-  "exclude": ["node_modules", "dist", "src/__test__"]
+  "exclude": ["node_modules", "dist", "src/__test__", "src/browser.ts"]
 }
