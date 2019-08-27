@@ -39,11 +39,10 @@ jobs:
     <<: *defaults
   deploy:
     working_directory: ~/repo
-    steps:
-      - checkout
     docker:
       - image: circleci/node:10.16.0
     steps:
+      - checkout
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "package.json" }}
