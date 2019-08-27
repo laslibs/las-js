@@ -25,6 +25,27 @@ defaults: &defaults
         root: ~/repo
         paths: .
 jobs:
+  test-vanilla-node:
+    docker:
+      - image: circleci/node:10.16.0
+    working_directory: ~/repo
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+
+      - run: npm install
+      - run:
+          name: Build Library
+          command: npm run build
+      - run:
+          name: Run tests
+          command: npm run test:vn
+
   test-node8:
     docker:
       - image: circleci/node:8.9.1
@@ -72,11 +93,18 @@ workflows:
           filters:
             tags:
               only: /^v.*/
+      - test-vanilla-js:
+          # filters:
+          #   branches:
+          #     only: master
+          #   tags:
+          #     only: /^v.*/
       - deploy:
           requires:
             - test-node8
             - test-node10
             - test-node-latest
+            - test-vanilla-js
           filters:
             branches:
               only: master

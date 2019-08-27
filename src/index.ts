@@ -253,7 +253,7 @@ export class Las {
   }
 
   /**
-   * Returns an object each well header and description as a key-value pair
+   * Returns an object, each well header and description as a key-value pair
    * @returns {Promise<{[key:string]: string}>}
    * @memberof Las
    */
@@ -262,7 +262,7 @@ export class Las {
   }> {
     const cur = (await this.property('curve')) as object;
     const hd = Object.keys(cur);
-    const descr = Object.values(cur).map(c => c.description);
+    const descr = Object.values(cur).map((c, i) => (c.description === 'none' ? hd[i] : c.description));
     const obj: { [key: string]: string } = {};
     hd.map((_, i) => (obj[hd[i]] = descr[i]));
     if (Object.keys(obj).length < 0) {

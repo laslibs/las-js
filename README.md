@@ -41,9 +41,9 @@
 
   ```js
   // common js
-  const Las = require('las-js');
+  const { Las } = require('las-js');
   // esm
-  import Las from 'las-js';
+  import { Las } from 'las-js';
   const myLas = new Lasjs(path.resolve(__dirname, `./sample/example1.las`)));
   ```
 
@@ -52,7 +52,7 @@
 las-js adds a global class Lasjs or using esm
 
 ```js
-import Las from 'las-js';
+import { Las } from 'las-js';
 ```
 
 ```js
