@@ -11,6 +11,9 @@
     "test:watch": "jest --watch",
     "lint": "./node_modules/.bin/eslint src --ext .ts --fix"
   },
+  "engines": {
+    "node": ">=8.9.1"
+  },
   "keywords": [
     "Las",
     "Geophysics",
