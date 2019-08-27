@@ -5,6 +5,7 @@
 ![npm bundle size](https://img.shields.io/bundlephobia/minzip/las-js?style=flat-square)
 ![GitHub issues](https://img.shields.io/github/issues/iykekings/las-js?style=flat-square)
 ![NPM](https://img.shields.io/npm/l/las-js?style=flat-square)
+![npm](https://img.shields.io/npm/v/las-js?style=flat-square)
 
 # las-js is a zero-dependency JavaScript library for parsing .Las file (Geophysical well log files).
 
