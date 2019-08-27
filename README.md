@@ -269,7 +269,7 @@ const myLas = new Lasjs('https://raw.githubusercontent.com/iykekings/las-js/mast
 
 - Browser and Node Supports
 
-  > las-js is written in typescript and compiles to es5.
+  > las-js is written in typescript and compiles to es6.
 
   - Browser
     Supports IE 10 and 11 - (doesn't yet support url)

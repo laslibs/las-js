@@ -1,5 +1,5 @@
 import path from 'path';
-import Las from '../index';
+import { Las } from '../index';
 
 const files = ['example1.las', '1046943371.las', 'A10.las', 'C1.las'];
 
