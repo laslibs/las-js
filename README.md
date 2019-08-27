@@ -1,3 +1,6 @@
+![CircleCI](https://img.shields.io/circleci/build/github/iykekings/las-js/master?label=build&style=flat-square&token=e591670f8adb6a712c9a24ac26255362b8eea406)
+![CircleCI](https://img.shields.io/circleci/build/github/iykekings/las-js/test?label=test&style=flat-square&token=e591670f8adb6a712c9a24ac26255362b8eea406)
+
 # las-js is a zero-dependency JavaScript library for parsing .Las file (Geophysical well log files).
 
 ### Currently supports only version 2.0 of LAS Specification. For more information about this format, see the Canadian Well Logging Society [web page](http://www.cwls.org/las/)
