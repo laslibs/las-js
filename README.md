@@ -1,5 +1,11 @@
 ![CircleCI](https://img.shields.io/circleci/build/github/iykekings/las-js/master?label=build&style=flat-square&token=e591670f8adb6a712c9a24ac26255362b8eea406)
 ![CircleCI](https://img.shields.io/circleci/build/github/iykekings/las-js/test?label=test&style=flat-square&token=e591670f8adb6a712c9a24ac26255362b8eea406)
+![Snyk Vulnerabilities for npm package](https://img.shields.io/snyk/vulnerabilities/npm/las-js?style=flat-square)
+![npm type definitions](https://img.shields.io/npm/types/las-js?style=flat-square)
+![npm bundle size](https://img.shields.io/bundlephobia/minzip/las-js?style=flat-square)
+![GitHub issues](https://img.shields.io/github/issues/iykekings/las-js?style=flat-square)
+![NPM](https://img.shields.io/npm/l/las-js?style=flat-square)
+![npm](https://img.shields.io/npm/v/las-js?style=flat-square)
 
 # las-js is a zero-dependency JavaScript library for parsing .Las file (Geophysical well log files).
 
@@ -24,42 +30,50 @@
   > Browser
 
   ```html
-  <script defer src="https://cdn.jsdelivr.net/gh/iykekings/las-js@2.0.0/dist/lasjs.js"></srcipt>
+  <script defer src="https://cdn.jsdelivr.net/npm/las-js"></srcipt>
   ```
 
 - Usage
 
-  Instantiate a new Lasjs class, passing the path to the .las file as the only _required_ parameter
+  import/require las-js module
 
   > Node
 
   ```js
-  const Lasjs = require('las-js');
-  const myLas = new Lasjs('./path-to-las-file.las');
+  // common js
+  const Las = require('las-js');
+  // esm
+  import Las from 'las-js';
+  const myLas = new Lasjs(path.resolve(__dirname, `./sample/example1.las`)));
   ```
 
-  > Browser
+> Browser
 
-  las-js adds a global class Lasjs
+las-js adds a global class Lasjs or using esm
 
-  ```js
-  const input = document.getElementById('file-input');
-  input.addEventListener('change', async e => {
-    const file = e.target.files[0];
-    const myLas = new Lasjs(file);
-  });
-  ```
+```js
+import Las from 'las-js';
+```
+
+```js
+const input = document.getElementById('file-input');
+input.addEventListener('change', async e => {
+  const file = e.target.files[0];
+  const myLas = new Lasjs(file);
+});
+// or
+const myLas = new Lasjs('https://raw.githubusercontent.com/iykekings/las-js/master/src/__test__/sample/A10.las'); // url - only on browser
+```
 
 - Read data
 
   > Use Laspy.data to get a 2-dimensional array containing the readings of each log,
   > Or Lasjs.dataStripped to get the same as above but with all rows containing null values stripped off
 
-  ```javascript
+  ```js
   async function read() {
     try {
-      const myLas = new ReadLas('./path-to-las-file.las');
-      const data = await myLas.data;
+      const data = await myLas.data();
       console.log(data);
       /**
          [[2650.0, 177.825, -999.25, -999.25],
@@ -69,7 +83,7 @@
           [2652.0, 177.825, -999.25, -999.25] ...]
         */
 
-      const dataStripped = await myLas.dataStripped;
+      const dataStripped = await myLas.dataStripped();
       console.log(dataStripped);
       /**
        [[2657.5, 212.002, 0.16665, 1951.74597],
@@ -89,7 +103,7 @@
 
     ```javascript
         // ...
-        const headers = await myLas.header;
+        const headers = await myLas.header();
         console.log(headers);
         // ['DEPTH', 'GR', 'NPHI', 'RHOB']
        // ...
@@ -100,7 +114,7 @@
 
     ```Js
         //...
-        const headerAndDescr = await myLas.headerAndDescr;
+        const headerAndDescr = await myLas.headerAndDescr();
         console.log(headerAndDescr)
         // {DEPTH: 'DEPTH', GR: 'Gamma Ray', NPHI: 'Neutron Porosity', RHOB: 'Bulk density'}
         // ...
@@ -111,16 +125,16 @@
 
     ```Js
         // ...
-        const gammaRay = await myLas.column('GR')
-        console.log(gammaRay)
+        const gammaRay = await myLas.column('GR');
+        console.log(gammaRay);
         // [-999.25, -999.25, -999.25, -999.25, -999.25, 122.03, 123.14, ...]
         // ...
     ```
     ```Js
         // ...
         // get column with null values stripped
-        const gammaRay = await myLas.columnStripped('GR')
-        console.log(gammaRay)
+        const gammaRay = await myLas.columnStripped('GR');
+        console.log(gammaRay);
         // [61.61, 59.99, 54.02, 50.87, 54.68, 64.39, 77.96, ...]
         // ...
     ```
@@ -138,7 +152,7 @@
 
   ```Js
     // ...
-    const well = await myLas.well
+    const well = await myLas.wellParams()
     const start = well.STRT.value // 1670.0
     const stop = well.STOP.value // 1669.75
     const null_value = well.NULL.value //  -999.25
@@ -158,7 +172,7 @@
 
   ```Js
     // ...
-    const curve = await myLas.curve
+    const curve = await myLas.curveParams()
     const NPHI = curve.NPHI.descr // 'Neutron Porosity'
     const RHOB = curve.RHOB.descr // 'Bulk density'
     // This is the same for all log column present in the file
@@ -175,7 +189,7 @@
 
   ```Js
     // ...
-    const param = await myLas.param; // 'BOTTOM HOLE TEMPERATURE'
+    const param = await myLas.logParams(); // 'BOTTOM HOLE TEMPERATURE'
     const BHT = param.BHT.descr // 'BOTTOM HOLE TEMPERATURE'
     const BHTValaue = param.BHT.value // 35.5
     const BHTUnits = param.BHT.units // 'DEGC'
@@ -188,8 +202,8 @@
 
     ```Js
         // ...
-        const numRows = await myLas.rowCount // 4
-        const numColumns = await myLas.columnCount // 3081
+        const numRows = await myLas.rowCount() // 4
+        const numColumns = await myLas.columnCount() // 3081
         // ...
     ```
 
@@ -198,8 +212,8 @@
 
     ```Js
         // ...
-        const version = await myLas.version // '2.0'
-        const wrap = await myLas.wrap // true
+        const version = await myLas.version() // '2.0'
+        const wrap = await myLas.wrap() // true
         // ...
     ```
 
@@ -207,7 +221,7 @@
 
   ```Js
       // ...
-      const other = await myLas.other
+      const other = await myLas.other()
       console.log(other)
       // Note: The logging tools became stuck at 625 metres causing the data between 625 metres and 615 metres to be invalid.
       // ...
@@ -252,6 +266,16 @@
   | 81.5 | 2.752 | 16.4 | -5.96 |
   | ...  | ...   | ...  | ...   |
   | 80.5 | 2.762 | 16.2 | -5.06 |
+
+- Browser and Node Supports
+
+  > las-js is written in typescript and compiles to es5.
+
+  - Browser
+    Supports IE 10 and 11 - (doesn't yet support url)
+    Doesn't support Opera Mini
+  - Node
+    Tested 0n 8, 10 and 12
 
 - ## Support
   las-js is an MIT-licensed open source project. You can help it grow by becoming a sponsor/supporter.[Become a Patron!](https://www.patreon.com/bePatron?u=19152008)

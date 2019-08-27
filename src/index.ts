@@ -32,7 +32,7 @@ export default class Lasjs {
       .join('\n');
   }
   private static convertToValue(s: string): number | string {
-    return Boolean(+s) ? +s : s;
+    return Boolean(+s) || /^0|0$/.test(s) ? +s : s;
   }
 
   public path: string | Blob;
@@ -50,17 +50,13 @@ export default class Lasjs {
    * @memberof Lasjs
    */
   public async column(str: string): Promise<Array<string | number>> {
-    try {
-      const hds = await this.header();
-      const sB = await this.data();
-      const index = hds.findIndex(item => item === str);
-      if (index < 0) {
-        throw new ColumnError(str);
-      }
-      return sB.map(c => c[index]);
-    } catch (error) {
-      throw new LasError('Error getting column: ' + error);
+    const hds = await this.header();
+    const sB = await this.data();
+    const index = hds.findIndex(item => item === str);
+    if (index < 0) {
+      throw new ColumnError(str);
     }
+    return sB.map(c => c[index]);
   }
 
   /**
@@ -70,17 +66,13 @@ export default class Lasjs {
    * @memberof Lasjs
    */
   public async columnStripped(column: string): Promise<Array<string | number>> {
-    try {
-      const hds = await this.header();
-      const sB = await this.dataStripped();
-      const index = hds.findIndex(item => item === column);
-      if (index >= 0) {
-        return sB.map(c => c[index]);
-      } else {
-        throw new ColumnError(column);
-      }
-    } catch (error) {
-      throw new LasError('Error getting column: ' + error);
+    const hds = await this.header();
+    const sB = await this.dataStripped();
+    const index = hds.findIndex(item => item === column);
+    if (index >= 0) {
+      return sB.map(c => c[index]);
+    } else {
+      throw new ColumnError(column);
     }
   }
 
@@ -108,7 +100,7 @@ export default class Lasjs {
         return file;
       }
     } catch (error) {
-      throw new LasError("Couldn't create csv file");
+      throw new CsvError();
     }
   }
 
@@ -135,7 +127,7 @@ export default class Lasjs {
         console.log(`${filename}.csv has been saved to current working directory`);
       });
     } catch (error) {
-      throw new LasError("Couldn't create csv file");
+      throw new CsvError();
     }
   }
   /**
@@ -144,12 +136,8 @@ export default class Lasjs {
    * @memberof Lasjs
    */
   public async rowCount(): Promise<number> {
-    try {
-      const l = await this.data();
-      return l.length;
-    } catch (error) {
-      throw new LasError("Couldn't get row count: " + error);
-    }
+    const l = await this.data();
+    return l.length;
   }
 
   /**
@@ -158,12 +146,8 @@ export default class Lasjs {
    * @memberof Lasjs
    */
   public async columnCount(): Promise<number> {
-    try {
-      const l = await this.header();
-      return l.length;
-    } catch (error) {
-      throw new LasError("Couldn't get column count: " + error);
-    }
+    const l = await this.header();
+    return l.length;
   }
 
   /**
@@ -172,20 +156,19 @@ export default class Lasjs {
    * @memberof Lasjs
    */
   public async data(): Promise<Array<Array<string | number>>> {
-    try {
-      const s = await this.blobString;
-      const hds = await this.header();
-      const totalheadersLength = hds.length;
-      const sB = (s as string)
-        .split(/~A(?:\w*\s*)*\n/)[1]
-        .trim()
-        .split(/\s+/)
-        .map(m => Lasjs.convertToValue(m.trim()));
-      const con = Lasjs.chunk(sB, totalheadersLength);
-      return con;
-    } catch (error) {
-      throw new LasError("Couldn't get read data: " + error);
+    const s = await this.blobString;
+    const hds = await this.header();
+    const totalheadersLength = hds.length;
+    const sB = (s as string)
+      .split(/~A(?:\w*\s*)*\n/)[1]
+      .trim()
+      .split(/\s+/)
+      .map(m => Lasjs.convertToValue(m.trim()));
+    if (sB.length < 0) {
+      throw new LasError('No data/~A section in the file');
     }
+    const con = Lasjs.chunk(sB, totalheadersLength);
+    return con;
   }
 
   /**
@@ -194,23 +177,22 @@ export default class Lasjs {
    * @memberof Lasjs
    */
   public async dataStripped(): Promise<Array<Array<string | number>>> {
-    try {
-      const s = await this.blobString;
-      const hds = await this.header();
-      const well = await this.property('well');
-      const nullValue = well.NULL.value;
-      const totalheadersLength = hds.length;
-      const sB = (s as string)
-        .split(/~A(?:\w*\s*)*\n/)[1]
-        .trim()
-        .split(/\s+/)
-        .map(m => Lasjs.convertToValue(m.trim()));
-      const con = Lasjs.chunk(sB, totalheadersLength);
-      const filtered = con.filter(f => !f.some(x => x === +nullValue));
-      return filtered;
-    } catch (error) {
-      throw new LasError("Couldn't get read data: " + error);
+    const s = await this.blobString;
+    const hds = await this.header();
+    const well = await this.property('well');
+    const nullValue = well.NULL.value;
+    const totalheadersLength = hds.length;
+    const sB = (s as string)
+      .split(/~A(?:\w*\s*)*\n/)[1]
+      .trim()
+      .split(/\s+/)
+      .map(m => Lasjs.convertToValue(m.trim()));
+    if (sB.length < 0) {
+      throw new LasError('No data/~A section in the file');
     }
+    const con = Lasjs.chunk(sB, totalheadersLength);
+    const filtered = con.filter(f => !f.some(x => x === +nullValue));
+    return filtered;
   }
 
   /**
@@ -219,12 +201,8 @@ export default class Lasjs {
    * @memberof Lasjs
    */
   public async version(): Promise<number> {
-    try {
-      const v = await this.metadata();
-      return v[0];
-    } catch (error) {
-      throw new LasError("Couldn't get version: " + error);
-    }
+    const v = await this.metadata();
+    return v[0];
   }
 
   /**
@@ -233,12 +211,8 @@ export default class Lasjs {
    * @memberof Lasjs
    */
   public async wrap(): Promise<boolean> {
-    try {
-      const v = await this.metadata();
-      return v[1];
-    } catch (error) {
-      throw new LasError("Couldn't get wrap: " + error);
-    }
+    const v = await this.metadata();
+    return v[1];
   }
 
   /**
@@ -247,24 +221,20 @@ export default class Lasjs {
    * @memberof Lasjs
    */
   public async other(): Promise<string> {
-    try {
-      const s = await this.blobString;
-      const som = (s as string).split(/~O(?:\w*\s*)*\n\s*/i)[1];
-      let str = '';
-      if (som) {
-        const some = som
-          .split('~')[0]
-          .replace(/\n\s*/g, ' ')
-          .trim();
-        str = Lasjs.removeComment(some);
-      }
-      if (str.length <= 0) {
-        throw new LasError('No other metadata');
-      }
-      return str;
-    } catch (error) {
-      throw new LasError("Couldn't get other metadata: " + error);
+    const s = await this.blobString;
+    const som = (s as string).split(/~O(?:\w*\s*)*\n\s*/i)[1];
+    let str = '';
+    if (som) {
+      const some = som
+        .split('~')[0]
+        .replace(/\n\s*/g, ' ')
+        .trim();
+      str = Lasjs.removeComment(some);
     }
+    if (str.length <= 0) {
+      throw new LasError('No ~other section');
+    }
+    return str;
   }
 
   /**
@@ -273,14 +243,13 @@ export default class Lasjs {
    * @memberof Lasjs
    */
   public async header(): Promise<string[]> {
-    try {
-      const s = await this.blobString;
-      const sth = (s as string).split(/~C(?:\w*\s*)*\n\s*/)[1].split('~')[0];
-      const uncommentedSth = Lasjs.removeComment(sth).trim();
-      return uncommentedSth.split('\n').map(m => m.trim().split(/\s+|[.]/)[0]);
-    } catch (error) {
-      throw new LasError("Couldn't get the header: " + error);
+    const s = await this.blobString;
+    const sth = (s as string).split(/~C(?:\w*\s*)*\n\s*/)[1].split('~')[0];
+    const uncommentedSth = Lasjs.removeComment(sth).trim();
+    if (uncommentedSth.length < 0) {
+      throw new LasError('There is no header in the file');
     }
+    return uncommentedSth.split('\n').map(m => m.trim().split(/\s+|[.]/)[0]);
   }
 
   /**
@@ -291,16 +260,15 @@ export default class Lasjs {
   public async headerAndDescr(): Promise<{
     [key: string]: string;
   }> {
-    try {
-      const cur = (await this.property('curve')) as object;
-      const hd = Object.keys(cur);
-      const descr = Object.values(cur).map(c => c.description);
-      const obj: { [key: string]: string } = {};
-      hd.map((_, i) => (obj[hd[i]] = descr[i]));
-      return obj;
-    } catch (error) {
-      throw new LasError("Couldn't get the header: " + error);
+    const cur = (await this.property('curve')) as object;
+    const hd = Object.keys(cur);
+    const descr = Object.values(cur).map(c => c.description);
+    const obj: { [key: string]: string } = {};
+    hd.map((_, i) => (obj[hd[i]] = descr[i]));
+    if (Object.keys(obj).length < 0) {
+      throw new LasError('Poorly formatted ~curve section in the file');
     }
+    return obj;
   }
 
   /**
@@ -331,61 +299,56 @@ export default class Lasjs {
   }
 
   private async metadata(): Promise<[number, boolean]> {
-    try {
-      const str = await this.blobString;
-      const sB = (str as string)
-        .trim()
-        .split(/~V(?:\w*\s*)*\n\s*/)[1]
-        .split(/~/)[0];
-      const sw = Lasjs.removeComment(sB);
-      const refined = sw
-        .split('\n')
-        .map(m => m.split(/\s{2,}|\s*:/).slice(0, 2))
-        .filter(f => Boolean(f));
-      const res = refined.map(r => r[1]);
-      const wrap = res[1].toLowerCase() === 'yes' ? true : false;
-      return [+res[0], wrap];
-    } catch (error) {
-      throw new LasError("Couldn't get metadata: " + error);
+    const str = await this.blobString;
+    const sB = (str as string)
+      .trim()
+      .split(/~V(?:\w*\s*)*\n\s*/)[1]
+      .split(/~/)[0];
+    const sw = Lasjs.removeComment(sB);
+    const refined = sw
+      .split('\n')
+      .map(m => m.split(/\s{2,}|\s*:/).slice(0, 2))
+      .filter(f => Boolean(f));
+    const res = refined.map(r => r[1]);
+    const wrap = res[1].toLowerCase() === 'yes' ? true : false;
+    if ([+res[0], wrap].length < 0) {
+      throw new LasError("Couldn't get metadata");
     }
+    return [+res[0], wrap];
   }
 
   private async property(p: string): Promise<WellProps> {
-    try {
-      const regDict: { [key: string]: string } = {
-        curve: '~C(?:\\w*\\s*)*\\n\\s*',
-        param: '~P(?:\\w*\\s*)*\\n\\s*',
-        well: '~W(?:\\w*\\s*)*\\n\\s*'
-      };
-      const regExp = new RegExp(regDict[p], 'i');
-      const str = await this.blobString;
-      const substr = (str as string).split(regExp);
-      let sw = '';
-      if (substr.length > 1) {
-        const res = substr[1].split(/~/)[0];
-        sw = Lasjs.removeComment(res);
-      }
-      if (sw.length > 0) {
-        const s: WellProps = {};
-        sw.split('\n').map(c => {
-          const obj = c.replace(/\s*[.]\s+/, '   none   ');
-          const title = obj.split(/[.]|\s+/)[0];
-          const unit = obj
-            .trim()
-            .split(/^\w+\s*[.]*s*/)[1]
-            .split(/\s+/)[0];
-          const description = Boolean(obj.split(/[:]/)[1].trim()) ? obj.split(/[:]/)[1].trim() : 'none';
-          const third = obj.split(/[:]/)[0].split(/\s{2,}\w*\s{2,}/);
-          const value =
-            third.length > 2 && !Boolean(third[third.length - 1]) ? third[third.length - 2] : third[third.length - 1];
-          s[title] = { unit, value, description };
-        });
-        return s;
-      } else {
-        throw new PropertyError(p);
-      }
-    } catch (error) {
-      throw new LasError("Couldn't get the property: " + error);
+    const regDict: { [key: string]: string } = {
+      curve: '~C(?:\\w*\\s*)*\\n\\s*',
+      param: '~P(?:\\w*\\s*)*\\n\\s*',
+      well: '~W(?:\\w*\\s*)*\\n\\s*'
+    };
+    const regExp = new RegExp(regDict[p], 'i');
+    const str = await this.blobString;
+    const substr = (str as string).split(regExp);
+    let sw = '';
+    if (substr.length > 1) {
+      const res = substr[1].split(/~/)[0];
+      sw = Lasjs.removeComment(res);
+    }
+    if (sw.length > 0) {
+      const s: WellProps = {};
+      sw.split('\n').map(c => {
+        const obj = c.replace(/\s*[.]\s+/, '   none   ');
+        const title = obj.split(/[.]|\s+/)[0];
+        const unit = obj
+          .trim()
+          .split(/^\w+\s*[.]*s*/)[1]
+          .split(/\s+/)[0];
+        const description = Boolean(obj.split(/[:]/)[1].trim()) ? obj.split(/[:]/)[1].trim() : 'none';
+        const third = obj.split(/[:]/)[0].split(/\s{2,}\w*\s{2,}/);
+        const value =
+          third.length > 2 && !Boolean(third[third.length - 1]) ? third[third.length - 2] : third[third.length - 1];
+        s[title] = { unit, value, description };
+      });
+      return s;
+    } else {
+      throw new PropertyError(p);
     }
   }
 
@@ -411,6 +374,9 @@ export default class Lasjs {
         try {
           const val = await fetch(this.path as string);
           const text = await val.text();
+          if (text.includes('404: Not Found')) {
+            throw new PathError();
+          }
           return text;
         } catch (error) {
           throw new PathError();
