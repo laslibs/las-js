@@ -38,10 +38,18 @@ jobs:
       - image: circleci/node:latest
     <<: *defaults
   deploy:
+    working_directory: ~/repo
+    steps:
+      - checkout
     docker:
       - image: circleci/node:10.16.0
     working_directory: ~/repo
     steps:
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
       - run: npm install
       - run:
           name: Build Library
@@ -72,7 +80,7 @@ workflows:
             - test-node10
             - test-node-latest
           filters:
-            tags:
-              only: /^v.*/
             branches:
               only: master
+            tags:
+              only: /^v.*/
