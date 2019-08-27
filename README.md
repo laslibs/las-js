@@ -1,5 +1,5 @@
-![CircleCI](https://img.shields.io/circleci/build/github/iykekings/las-js/master?label=build&style=flat-square&token=abc123def456)
-![CircleCI](https://img.shields.io/circleci/build/github/iykekings/las-js/test?label=test&style=flat-square&token=abc123def456)
+![CircleCI](https://img.shields.io/circleci/build/github/iykekings/las-js/master?label=build&style=flat-square&token=e591670f8adb6a712c9a24ac26255362b8eea406)
+![CircleCI](https://img.shields.io/circleci/build/github/iykekings/las-js/test?label=test&style=flat-square&token=e591670f8adb6a712c9a24ac26255362b8eea406)
 
 # las-js is a zero-dependency JavaScript library for parsing .Las file (Geophysical well log files).
 
