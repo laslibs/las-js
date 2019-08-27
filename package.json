@@ -1,10 +1,14 @@
 {
   "name": "las-js",
-  "version": "2.0.0",
+  "version": "3.0.2",
   "description": "A zero-dependency JS library for reading/parsing .Las files",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "build": "./node_modules/.bin/tsc",
+    "test:watch": "jest --watch",
+    "lint": "./node_modules/.bin/tslint src/index.ts --fix"
   },
   "keywords": [
     "Las",
@@ -17,5 +21,33 @@
     "type": "git",
     "url": "https://github.com/iykekings/las-js"
   },
-  "homepage": "https://github.com/iykekings/las-js"
+  "homepage": "https://github.com/iykekings/las-js",
+  "devDependencies": {
+    "@types/jest": "^24.0.18",
+    "@typescript-eslint/eslint-plugin": "^2.0.0",
+    "@typescript-eslint/parser": "^2.0.0",
+    "eslint": "^6.2.2",
+    "eslint-config-prettier": "^6.1.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "husky": "^3.0.4",
+    "jest": "^24.9.0",
+    "lint-staged": "^9.2.3",
+    "prettier": "^1.18.2",
+    "ts-jest": "^24.0.2",
+    "ts-node": "^8.3.0",
+    "typescript": "^3.5.3"
+  },
+  "prepublish": "npm run build",
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "pre-push": "npm test"
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "npm run lint",
+      "git add"
+    ]
+  }
 }
