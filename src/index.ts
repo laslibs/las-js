@@ -32,7 +32,7 @@ export default class Lasjs {
       .join('\n');
   }
   private static convertToValue(s: string): number | string {
-    return Boolean(+s) ? +s : s;
+    return Boolean(+s) || /^0|0$/.test(s) ? +s : s;
   }
 
   public path: string | Blob;
