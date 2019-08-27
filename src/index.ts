@@ -374,6 +374,9 @@ export default class Lasjs {
         try {
           const val = await fetch(this.path as string);
           const text = await val.text();
+          if (text.includes('404: Not Found')) {
+            throw new PathError();
+          }
           return text;
         } catch (error) {
           throw new PathError();
