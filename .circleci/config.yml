@@ -42,9 +42,7 @@ jobs:
       - image: circleci/node:10.16.0
     working_directory: ~/repo
     steps:
-      - attach_workspace:
-          at: ~/repo
-
+      - run: npm install
       - run:
           name: Build Library
           command: npm run build
