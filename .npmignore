@@ -2,5 +2,9 @@ node_modules
 src
 jest.config.js
 tsconfig.json
-tslint.json
+tsconfig.browser.json
 .vscode
+.circleci/config.yml
+.prettierrc.js 
+.eslintrc.js
+.eslintignore 
