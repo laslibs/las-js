@@ -1,4 +1,4 @@
-![CircleCI](https://img.shields.io/circleci/build/github/iykekings/las-js/master?label=build&style=flat-square&token=e591670f8adb6a712c9a24ac26255362b8eea406)
+![CircleCI](https://img.shields.io/circleci/build/github/iykekings/las-js/master?label=publish&style=flat-square&token=e591670f8adb6a712c9a24ac26255362b8eea406)
 ![CircleCI](https://img.shields.io/circleci/build/github/iykekings/las-js/test?label=test&style=flat-square&token=e591670f8adb6a712c9a24ac26255362b8eea406)
 ![Snyk Vulnerabilities for npm package](https://img.shields.io/snyk/vulnerabilities/npm/las-js?style=flat-square)
 ![npm type definitions](https://img.shields.io/npm/types/las-js?style=flat-square)
@@ -30,7 +30,7 @@
   > Browser
 
   ```html
-  <script defer src="https://cdn.jsdelivr.net/npm/las-js"></srcipt>
+  <script defer src="https://cdn.jsdelivr.net/npm/las-js/dist/browser.js"></srcipt>
   ```
 
 - Usage
