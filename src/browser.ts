@@ -1,18 +1,58 @@
-import fs from 'fs';
-import util from 'util';
-import { ColumnError, CsvError, LasError, PathError, PropertyError } from './error';
-import isNode from './isnode';
-let fsprom: Function;
+class LasError {
+  public name: string;
+  public message: string;
 
-if (isNode) {
-  fsprom = util.promisify(fs.readFile);
+  constructor(message: string) {
+    this.name = 'LasError';
+    this.message = message;
+  }
+}
+
+class ColumnError {
+  public message: string;
+  public name: string;
+
+  constructor(column: string) {
+    this.name = 'ColumnError';
+    this.message = `Column ${column} doesn't exist in the file`;
+  }
+}
+
+class PathError {
+  public message: string;
+  public name: string;
+
+  constructor() {
+    this.name = 'PathError';
+    this.message = 'Path is invalid';
+  }
+}
+class CsvError {
+  public message: string;
+  public name: string;
+
+  constructor() {
+    this.name = 'CsvError';
+    this.message = "Couldn't convert file to CSV";
+  }
+}
+
+class PropertyError {
+  public message: string;
+  public name: string;
+
+  constructor(property: string) {
+    this.name = 'PropertyError';
+    this.message = `Property ${property} doesn't exist`;
+  }
 }
 
 interface WellProps {
   [key: string]: { unit: string; value: string; description: string };
 }
 
-export class Las {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+class Las {
   private static chunk<T>(arr: T[], size: number): T[][] {
     const overall = [];
     let index = 0;
@@ -92,17 +132,7 @@ export class Las {
       const data = await this.data();
       const rHd = headers.join(',') + '\n';
       const rData = data.map(d => d.join(',')).join('\n');
-      if (isNode) {
-        fs.writeFile(`${filename}.csv`, rHd + rData, 'utf8', err => {
-          if (err) {
-            throw new CsvError();
-          }
-          console.log(`${filename}.csv has been saved to current working directory`);
-        });
-      } else {
-        const file = new File([rHd + rData], `${filename}.csv`);
-        return file;
-      }
+      return new File([rHd + rData], `${filename}.csv`);
     } catch (error) {
       throw new CsvError();
     }
@@ -120,16 +150,7 @@ export class Las {
       const data = await this.dataStripped();
       const rHd = headers.join(',') + '\n';
       const rData = data.map(d => d.join(',')).join('\n');
-      if (!isNode) {
-        const file = new File([rHd + rData], `${filename}.csv`);
-        return file;
-      }
-      fs.writeFile(`${filename}.csv`, rHd + rData, 'utf8', err => {
-        if (err) {
-          throw new CsvError();
-        }
-        console.log(`${filename}.csv has been saved to current working directory`);
-      });
+      return new File([rHd + rData], `${filename}.csv`);
     } catch (error) {
       throw new CsvError();
     }
@@ -358,37 +379,28 @@ export class Las {
   }
 
   private async initialize(): Promise<string | void> {
-    if (isNode) {
-      try {
-        const str = await fsprom(this.path as string, 'utf8');
-        return str as string;
-      } catch (error) {
-        throw new PathError();
-      }
+    if (this.path instanceof File) {
+      // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = (): void => {
+          reject(new PathError());
+        };
+        reader.onload = (): void => {
+          resolve(reader.result as string);
+        };
+        reader.readAsText(this.path as Blob);
+      });
     } else {
-      if (this.path instanceof File) {
-        // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onerror = (): void => {
-            reject(new PathError());
-          };
-          reader.onload = (): void => {
-            resolve(reader.result as string);
-          };
-          reader.readAsText(this.path as Blob);
-        });
-      } else {
-        try {
-          const val = await fetch(this.path as string);
-          const text = await val.text();
-          if (text.includes('404: Not Found')) {
-            throw new PathError();
-          }
-          return text;
-        } catch (error) {
+      try {
+        const val = await fetch(this.path as string);
+        const text = await val.text();
+        if (text.includes('404: Not Found')) {
           throw new PathError();
         }
+        return text;
+      } catch (error) {
+        throw new PathError();
       }
     }
   }

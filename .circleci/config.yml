@@ -8,7 +8,6 @@ defaults: &defaults
     - restore_cache:
         keys:
           - v1-dependencies-{{ checksum "package.json" }}
-          # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
     - run: npm install
@@ -37,6 +36,23 @@ jobs:
     docker:
       - image: circleci/node:latest
     <<: *defaults
+  test-vanilla-node:
+    docker:
+      - image: circleci/node:10.16.0
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            - v1-dependencies-
+      - run: npm install
+      - run:
+          name: Build Library
+          command: npm run build
+      - run:
+          name: Run vanilla-node tests
+          command: npm run testvn
   deploy:
     working_directory: ~/repo
     docker:
@@ -46,7 +62,6 @@ jobs:
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "package.json" }}
-            # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
       - run: npm install
       - run:
@@ -72,11 +87,13 @@ workflows:
           filters:
             tags:
               only: /^v.*/
+      - test-vanilla-node
       - deploy:
           requires:
             - test-node8
             - test-node10
             - test-node-latest
+            - test-vanilla-node
           filters:
             branches:
               only: master

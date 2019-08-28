@@ -1,6 +1,8 @@
-import path from 'path';
-import { Las } from '../index';
-
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { Las } = require('../../dist/index');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const path = require('path');
+// const path = require('path');
 const files = ['example1.las', '1046943371.las', 'A10.las', 'C1.las'];
 
 describe('Version', () => {
@@ -21,7 +23,7 @@ describe('Blob', () => {
     async filename => {
       const myLas = new Las(path.resolve(__dirname, `./sample/${filename}`));
       const blob = await myLas.blobString;
-      expect((blob as string).length).toBeGreaterThan(0);
+      expect(blob.length).toBeGreaterThan(0);
     },
     1000
   );
@@ -69,7 +71,7 @@ describe('Header and Description', () => {
     async filename => {
       const myLas = new Las(path.resolve(__dirname, `./sample/${filename}`));
       const headerAndDescr = await myLas.headerAndDescr();
-      expect(Object.keys(headerAndDescr as object).length).toBeGreaterThan(0);
+      expect(Object.keys(headerAndDescr).length).toBeGreaterThan(0);
     },
     1000
   );
@@ -93,7 +95,7 @@ describe('Well Parameters', () => {
     async filename => {
       const myLas = new Las(path.resolve(__dirname, `./sample/${filename}`));
       const well = await myLas.wellParams();
-      expect(Object.keys(well as object).length).toBeGreaterThan(0);
+      expect(Object.keys(well).length).toBeGreaterThan(0);
     },
     1000
   );
@@ -105,7 +107,7 @@ describe('Curve Parameters', () => {
     async filename => {
       const myLas = new Las(path.resolve(__dirname, `./sample/${filename}`));
       const curve = await myLas.curveParams();
-      expect(Object.keys(curve as object).length).toBeGreaterThan(0);
+      expect(Object.keys(curve).length).toBeGreaterThan(0);
     },
     1000
   );
@@ -117,7 +119,7 @@ describe('Log Parameters', () => {
     async filename => {
       const myLas = new Las(path.resolve(__dirname, `./sample/${filename}`));
       const param = await myLas.logParams();
-      expect(Object.keys(param as object).length).toBeGreaterThan(0);
+      expect(Object.keys(param).length).toBeGreaterThan(0);
     },
     1000
   );
