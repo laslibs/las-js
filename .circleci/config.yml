@@ -43,30 +43,25 @@ jobs:
     working_directory: ~/repo
     steps:
       - checkout
-
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "package.json" }}
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
-
       - run: npm install
       - run:
           name: Build Library
           command: npm run build
       - run:
           name: Run tests
-          command: npm run test:vn
-
+          command: npm run testvn
       - save_cache:
         paths:
           - node_modules
         key: v1-dependencies-{{ checksum "package.json" }}
-
       - persist_to_workspace:
           root: ~/repo
           paths: .
-
   deploy:
     working_directory: ~/repo
     docker:
