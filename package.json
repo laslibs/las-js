@@ -1,14 +1,18 @@
 {
   "name": "las-js",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "A zero-dependency JS library for reading/parsing .Las files",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "jest",
-    "build": "./node_modules/.bin/tsc",
+    "test": "jest --testPathIgnorePatterns test.js",
+    "testvn": "jest",
+    "build": "./node_modules/.bin/tsc && ./node_modules/.bin/tsc -p tsconfig.browser.json",
     "test:watch": "jest --watch",
-    "lint": "./node_modules/.bin/tslint src/index.ts --fix"
+    "lint": "./node_modules/.bin/eslint src --ext .ts --fix"
+  },
+  "engines": {
+    "node": ">=8.9.1"
   },
   "keywords": [
     "Las",
@@ -23,6 +27,8 @@
   },
   "homepage": "https://github.com/iykekings/las-js",
   "devDependencies": {
+    "@babel/parser": "^7.5.5",
+    "@babel/types": "^7.5.5",
     "@types/jest": "^24.0.18",
     "@typescript-eslint/eslint-plugin": "^2.0.0",
     "@typescript-eslint/parser": "^2.0.0",
