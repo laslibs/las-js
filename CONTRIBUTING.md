@@ -11,11 +11,12 @@ Please note we have a code of conduct, please follow it in all your interactions
    build.
 2. Update the Changelog.md with details of changes to the interface, this includes new environment 
    variables, exposed ports, useful file locations and container parameters.
-3. Increasing version number is automated by the CI used in publishing the packages. But you must make sure
+3. Update Structure.md if a new method is added.
+4. Increasing version number is automated by the CI used in publishing the packages. But you must make sure
    that your commits follows the guideline 
    [Used by Publishing CI tool](https://github.com/marketplace/actions/automated-releases-for-npm-packages)
    to help it ensure correct versioning.
-4. You may merge the Pull Request in once you have the sign-off of two other developers, or if you 
+5. You may merge the Pull Request in once you have the sign-off of two other developers, or if you 
    do not have permission to do that, you may request the second reviewer to merge it for you.
 
 ## Code of Conduct
