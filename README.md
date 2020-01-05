@@ -1,5 +1,4 @@
-![CircleCI](https://img.shields.io/circleci/build/github/iykekings/las-js/master?label=publish&style=flat-square&token=e591670f8adb6a712c9a24ac26255362b8eea406)
-![CircleCI](https://img.shields.io/circleci/build/github/iykekings/las-js/test?label=test&style=flat-square&token=e591670f8adb6a712c9a24ac26255362b8eea406)
+![](https://github.com/laslibs/las-js/workflows/Node%20CI/badge.svg?)
 ![Snyk Vulnerabilities for npm package](https://img.shields.io/snyk/vulnerabilities/npm/las-js?style=flat-square)
 ![npm type definitions](https://img.shields.io/npm/types/las-js?style=flat-square)
 ![npm bundle size](https://img.shields.io/bundlephobia/minzip/las-js?style=flat-square)
@@ -44,7 +43,7 @@
   const { Las } = require('las-js');
   // esm
   import { Las } from 'las-js';
-  const myLas = new Lasjs(path.resolve(__dirname, `./sample/example1.las`)));
+  const myLas = new Lasjs(`./sample/example1.las`);
   ```
 
 > Browser
