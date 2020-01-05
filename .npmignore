@@ -11,3 +11,7 @@ tsconfig.browser.json
 .gitattributes
 .gitignore
 .github
+CHANGELOG.md
+CONTRIBUTING.md
+STRUCTURE.md
+.npmignore
