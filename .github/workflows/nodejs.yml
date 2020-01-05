@@ -27,12 +27,21 @@ jobs:
         CI: true
 
   publish:
+    if: github.ref == 'refs/head/master'
     needs: [build]
     runs-on: ubuntu-latest
+
     steps:
     - uses: actions/checkout@master
-    - name: Publish
-      if: github.ref == 'refs/heads/master'
+    - name: Setup Node.js
+      uses: actions/setup-node@v1.1.0
+    - name: Build
+      run: |
+        npm ci
+        npm run build --if-present
+      env:
+        CI: true
+    - name: Publish to NPM
       uses: mikeal/merge-release@master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
