@@ -23,11 +23,12 @@ jobs:
         npm test
         npm run build --if-present
         npm run testvn
+        echo ${{ github.ref }}
       env:
         CI: true
 
   publish:
-    if: github.ref == 'refs/head/master'
+    if: github.ref == 'refs/heads/master'
     needs: [build]
     runs-on: ubuntu-latest
 
