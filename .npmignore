@@ -4,7 +4,10 @@ jest.config.js
 tsconfig.json
 tsconfig.browser.json
 .vscode
-.circleci/config.yml
+.circleci
 .prettierrc.js 
 .eslintrc.js
-.eslintignore 
+.eslintignore
+.gitattributes
+.gitignore
+.github
