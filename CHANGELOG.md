@@ -19,3 +19,5 @@
 * misc: remove config files from publications
 
 * update docs
+
+* fix: Replace Error Response with Empty String
