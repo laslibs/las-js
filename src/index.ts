@@ -225,6 +225,7 @@ export class Las {
    * @memberof Las
    */
   public async other(): Promise<string> {
+    // TODO: need to decide on a more descriptive name than "s", "som" & "some"
     const s = await this.blobString;
     const som = (s as string).split(/~O(?:\w*\s*)*\n\s*/i)[1];
     let str = '';
@@ -236,7 +237,7 @@ export class Las {
       str = Las.removeComment(some);
     }
     if (str.length <= 0) {
-      throw new LasError('No ~other section');
+      return '';
     }
     return str;
   }
