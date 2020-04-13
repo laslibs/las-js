@@ -2,6 +2,7 @@
 const { Las } = require('../../dist/index');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const path = require('path');
+const fs = require('fs').promises;
 // const path = require('path');
 const files = ['example1.las', '1046943371.las', 'A10.las', 'C1.las'];
 
@@ -24,6 +25,22 @@ describe('Blob', () => {
       const myLas = new Las(path.resolve(__dirname, `./sample/${filename}`));
       const blob = await myLas.blobString;
       expect(blob.length).toBeGreaterThan(0);
+    },
+    1000
+  );
+});
+
+describe('Raw las data', () => {
+  it.each(files)(
+    "The decoded string shouldn't be empty for %s",
+    async filename => {
+      const file = path.resolve(__dirname, `./sample/${filename}`);
+      const data = await fs.readFile(file, {encoding: 'utf8'});
+      const myLas = new Las(data, {loadFile: false});
+      const blob = await myLas.blobString;
+      expect(myLas.path).toEqual('');
+      expect(blob.length).toBeGreaterThan(0);
+      expect(blob).toEqual(data);
     },
     1000
   );

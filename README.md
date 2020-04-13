@@ -46,6 +46,17 @@
   const myLas = new Lasjs(`./sample/example1.las`);
   ```
 
+  You can also pass LAS file contents directly to constructor
+
+  ```js
+  // common js
+  const { Las } = require('las-js');
+  const fs = require('fs');
+  const data = fs.readFileSync(`./sample/example1.las`, { encoding: 'utf8' });
+  // add loadFile: false to constructor options
+  const myLas = new Lasjs(data, { loadFile: false });
+  ```
+
 > Browser
 
 las-js adds a global class Lasjs or using esm
