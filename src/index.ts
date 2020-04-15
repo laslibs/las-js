@@ -12,6 +12,15 @@ interface WellProps {
   [key: string]: { unit: string; value: string; description: string };
 }
 
+interface LasOptions {
+  /**
+   * Indicates whether Las needs to load file or not.
+   * If false Las will expect file content instead of file path.
+   * @default true
+   */
+  loadFile?: boolean;
+}
+
 export class Las {
   private static chunk<T>(arr: T[], size: number): T[][] {
     const overall = [];
@@ -39,12 +48,17 @@ export class Las {
   public blobString: Promise<string | void>;
   /**
    * Creates an instance of Las.
-   * @param {string} path - Absolute path to las file
+   * @param {string} path - Absolute path to las file or las file contents
    * @memberof Las
    */
-  constructor(path: string | File) {
-    this.path = path;
-    this.blobString = this.initialize();
+  constructor(path: string | File, { loadFile = true }: LasOptions = {}) {
+    if (loadFile) {
+      this.path = path;
+      this.blobString = this.initialize();
+    } else {
+      this.path = '';
+      this.blobString = Promise.resolve(path as string);
+    }
   }
 
   /**
