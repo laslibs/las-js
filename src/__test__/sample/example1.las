@@ -41,7 +41,7 @@ UWI     .       100123401234W500                 :UNIQUE WELL ID
 ~OTHER
      Note: The logging tools became stuck at 625 metres causing the data
      between 625 metres and 615 metres to be invalid.
-~A  DEPTH     DT    RHOB        NPHI   SFLU    SFLA      ILM      ILD
+~A  DEPTH     D/T    RHOB3        NPHI   SFLU    SFLA      ILM      ILD
 1670.000   123.450 2550.000    0.450  123.450  123.450  110.200  105.600
 1669.875   123.450 2550.000    0.450  123.450  123.450  110.200  105.600
 1669.750   123.450 2550.000    0.450  123.450  123.450  110.200  105.600
