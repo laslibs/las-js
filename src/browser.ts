@@ -185,7 +185,7 @@ class Las {
     const hds = await this.header();
     const totalheadersLength = hds.length;
     const sB = (s as string)
-      .split(/~A(?:\w*\s*)*\n/)[1]
+      .split(/~A(?:[\x00-\x7F])*\n/)[1]
       .trim()
       .split(/\s+/)
       .map(m => Las.convertToValue(m.trim()));
@@ -208,7 +208,7 @@ class Las {
     const nullValue = well.NULL.value;
     const totalheadersLength = hds.length;
     const sB = (s as string)
-      .split(/~A(?:\w*\s*)*\n/)[1]
+      .split(/~A(?:[\x00-\x7F])*\n/)[1]
       .trim()
       .split(/\s+/)
       .map(m => Las.convertToValue(m.trim()));
