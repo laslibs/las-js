@@ -352,20 +352,22 @@ export class Las {
     }
     if (sw.length > 0) {
       const s: WellProps = {};
-      sw.split('\n').map(c => {
-        const obj = c.replace(/\s*[.]\s+/, '   none   ');
-        const title = obj.split(/[.]|\s+/)[0];
-        const unit = obj
-          .trim()
-          .split(/^\w+\s*[.]*s*/)[1]
-          .split(/\s+/)[0];
-        const description = Boolean(obj.split(/[:]/)[1].trim()) ? obj.split(/[:]/)[1].trim() : 'none';
-        const third = obj.split(/[:]/)[0].split(/\s{2,}\w*\s{2,}/);
-        let value =
-          third.length > 2 && !Boolean(third[third.length - 1]) ? third[third.length - 2] : third[third.length - 1];
-        value = value.length > 0 ? value.trim() : value;
-        s[title] = { unit, value, description };
-      });
+      sw.split('\n')
+        .filter(Boolean)
+        .map(c => {
+          const obj = c.replace(/\s*[.]\s+/, '   none   ');
+          const title = obj.split(/[.]|\s+/)[0];
+          const unit = obj
+            .trim()
+            .split(/^\w+\s*[.]*s*/)[1]
+            .split(/\s+/)[0];
+          const description = Boolean(obj.split(/[:]/)[1].trim()) ? obj.split(/[:]/)[1].trim() : 'none';
+          const third = obj.split(/[:]/)[0].split(/\s{2,}\w*\s{2,}/);
+          let value =
+            third.length > 2 && !Boolean(third[third.length - 1]) ? third[third.length - 2] : third[third.length - 1];
+          value = value.length > 0 ? value.trim() : value;
+          s[title] = { unit, value, description };
+        });
       return s;
     } else {
       throw new PropertyError(p);
