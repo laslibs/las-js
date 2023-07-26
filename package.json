@@ -12,7 +12,7 @@
     "lint": "./node_modules/.bin/eslint src --ext .ts --fix"
   },
   "engines": {
-    "node": ">=14"
+    "node": ">=16"
   },
   "keywords": [
     "Las",
@@ -23,9 +23,9 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/iykekings/las-js"
+    "url": "https://github.com/laslibs/las-js"
   },
-  "homepage": "https://github.com/iykekings/las-js",
+  "homepage": "https://github.com/laslibs/las-js",
   "devDependencies": {
     "@babel/parser": "^7.22.7",
     "@babel/types": "^7.22.5",
