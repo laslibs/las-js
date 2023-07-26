@@ -43,7 +43,7 @@
   const { Las } = require('las-js');
   // esm
   import { Las } from 'las-js';
-  const myLas = new Lasjs(`./sample/example1.las`);
+  const myLas = new Las(`./sample/example1.las`);
   ```
 
   You can also pass LAS file contents directly to constructor
