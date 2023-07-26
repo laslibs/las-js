@@ -54,16 +54,12 @@
   const fs = require('fs');
   const data = fs.readFileSync(`./sample/example1.las`, { encoding: 'utf8' });
   // add loadFile: false to constructor options
-  const myLas = new Lasjs(data, { loadFile: false });
+  const myLas = new Las(data, { loadFile: false });
   ```
 
 > Browser
 
-las-js adds a global class Lasjs or using esm
-
-```js
-import { Las } from 'las-js';
-```
+las-js adds a global class Lasjs
 
 ```js
 const input = document.getElementById('file-input');
