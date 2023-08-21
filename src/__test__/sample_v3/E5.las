@@ -48,7 +48,7 @@ RUN .                                         1  : Run number
 GL  .Ft                             1363.000000  : Ground level elevation
 DREF.                                        KB  : Depth reference
 
-~Other
+~Ascii
 #Survey Data
 #	TRACK	Survey	DEPTH	INCL	AZM	TVD	VS	N/-S	E/-W	DLS
 	1	1	11.33	63.69	326.48	28.12	9206.23		5227.55	-221.59	5.7
@@ -324,5 +324,3 @@ DREF.                                        KB  : Depth reference
 
 ~Curve
  MD.ft                        : Measured Depth. {F}
-
-~Ascii

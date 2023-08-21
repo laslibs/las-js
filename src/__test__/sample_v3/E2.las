@@ -44,8 +44,6 @@ RUN .                                         1  : Run number
 GL  .Ft                             1363.000000  : Ground level elevation
 DREF.                                        KB  : Depth reference
 
-~Other
-
 ~Curve
  MD.ft                        : Measured Depth. {F}
 

@@ -1,17 +1,8 @@
 const path = require('path');
 const { Las } = require('../../dist/index');
-// const { Las } = require('../index');
 const fs = require('fs');
 
 const files = ['E1.las', 'E2.las', 'E3.las', 'E4.las', 'E5.las'];
-
-// describe('test', () => {
-//   it('test', async () => {
-//     const myLas = new Las(path.resolve(__dirname, `./sample_v3/E4.las`));
-//     const data = await myLas.data();
-//     expect(data).toBeInstanceOf(Array);
-//   });
-// });
 
 describe('Version', () => {
   it.each(files)(
