@@ -1,6 +1,6 @@
 {
   "name": "las-js",
-  "version": "3.3.2",
+  "version": "3.4.0",
   "description": "A zero-dependency JS library for reading/parsing .Las files",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
