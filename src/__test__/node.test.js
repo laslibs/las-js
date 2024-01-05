@@ -143,6 +143,18 @@ describe('Log Parameters', () => {
     },
     1000
   );
+
+  it('should handle special symbols in log parameters', async () => {
+    const filename = 'parameters-with-symbols.las';
+    const myLas = new Las(path.resolve(__dirname, `./sample/${filename}`));
+    const param = await myLas.logParams();
+
+    expect(param['BHT-T'].unit).toEqual('DEGC');
+    expect(param['BS_D-T'].unit).toEqual('MM');
+    expect(param['FD_A[0]'].unit).toEqual('K/M3');
+    expect(param['MATR_1'].unit).toEqual('none');
+    expect(param['RMF1'].unit).toEqual('OHMM');
+  });
 });
 
 describe('Rows', () => {
