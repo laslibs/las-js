@@ -357,10 +357,7 @@ export class Las {
         .map(c => {
           const obj = c.replace(/\s*[.]\s+/, '   none   ');
           const title = obj.split(/[.]|\s+/)[0];
-          const unit = obj
-            .trim()
-            .split(/^\w+\s*[.]*s*/)[1]
-            .split(/\s+/)[0];
+          const unit = obj.trim().split(/^[A-z\-\d_]+\s*\.([\w\/%]+)\s+/)[1] || 'none';
           const description = Boolean(obj.split(/[:]/)[1].trim()) ? obj.split(/[:]/)[1].trim() : 'none';
           const third = obj.split(/[:]/)[0].split(/\s{2,}\w*\s{2,}/);
           let value =
